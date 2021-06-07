@@ -1,14 +1,20 @@
 package com.raphaelcollin.iteminventory.infrastructure.mongodb.repository;
 
 import com.raphaelcollin.iteminventory.domain.Item;
+import com.raphaelcollin.iteminventory.domain.ItemQuery;
 import com.raphaelcollin.iteminventory.domain.ItemRepository;
 import com.raphaelcollin.iteminventory.infrastructure.mongodb.document.ItemDocument;
 import com.raphaelcollin.iteminventory.infrastructure.mongodb.serializer.DocumentSerializer;
 import lombok.AllArgsConstructor;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.data.mongodb.core.query.BasicQuery;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.Comparator;
 
 @Repository
 @AllArgsConstructor
@@ -17,9 +23,20 @@ public class ReactiveMongoItemRepository implements ItemRepository {
     private final DocumentSerializer<Item, ItemDocument> serializer;
 
     @Override
-    public Flux<Item> findAllItems() {
+    public Flux<Item> findByQuery(final ItemQuery itemQuery) {
+        final Query mongoQuery = new Query();
+
+        itemQuery.getTitle()
+                .ifPresent(title -> mongoQuery.addCriteria(new Criteria("title").is(title)));
+
+        itemQuery.getMinQuantity()
+                .ifPresent(quantity -> mongoQuery.addCriteria(new Criteria("quantity").gte(quantity)));
+
         return mongoTemplate
-                .findAll(ItemDocument.class)
+                .query(ItemDocument.class)
+                .matching(mongoQuery)
+                .all()
+                .sort(Comparator.comparing(ItemDocument::getTitle))
                 .map(serializer::fromDocument);
     }
 

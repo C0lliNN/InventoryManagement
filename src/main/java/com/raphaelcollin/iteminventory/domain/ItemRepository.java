@@ -4,7 +4,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface ItemRepository {
-    Flux<Item> findAllItems();
+    Flux<Item> findByQuery(final ItemQuery query);
     Mono<Item> findItemById(final String itemId);
     Mono<Void> save(final Item item);
 }

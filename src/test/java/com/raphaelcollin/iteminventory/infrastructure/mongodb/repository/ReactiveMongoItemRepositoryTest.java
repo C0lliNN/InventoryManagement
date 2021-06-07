@@ -2,6 +2,7 @@ package com.raphaelcollin.iteminventory.infrastructure.mongodb.repository;
 
 import com.raphaelcollin.iteminventory.domain.Item;
 import com.raphaelcollin.iteminventory.domain.ItemFactoryForTests;
+import com.raphaelcollin.iteminventory.domain.ItemQuery;
 import com.raphaelcollin.iteminventory.domain.ItemRepository;
 import com.raphaelcollin.iteminventory.infranstructure.config.DatabaseTestAutoConfiguration;
 import com.raphaelcollin.iteminventory.infrastructure.mongodb.document.ItemDocument;
@@ -15,14 +16,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.Arrays;
 import java.util.UUID;
 
 
@@ -44,44 +43,93 @@ class ReactiveMongoItemRepositoryTest {
     @Autowired
     private ReactiveMongoTemplate template;
 
-    @Autowired
-    private ApplicationContext context;
-
     @AfterEach
     void tearDown() {
         cleanCollection();
     }
 
     @Nested
-    @DisplayName("method: findAllItems()")
-    class FindAllItemsMethod {
-        private final Item item1 = ItemFactoryForTests.newItemDomain();
-        private final Item item2 = ItemFactoryForTests.newItemDomain();
-        private final Item item3 = ItemFactoryForTests.newItemDomain();
+    @DisplayName("method: findByQuery()")
+    class FindByQueryMethod {
+        private Item item1;
+        private Item item2;
+        private Item item3;
 
         @BeforeEach
         void setUp() {
+            this.item1 = ItemFactoryForTests.newItemDomain()
+                    .toBuilder()
+                    .quantity(5)
+                    .title("456")
+                    .build();
+
+            this.item2 = ItemFactoryForTests.newItemDomain()
+                    .toBuilder()
+                    .quantity(10)
+                    .title("123")
+                    .build();
+
+            this.item3 = ItemFactoryForTests.newItemDomain()
+                    .toBuilder()
+                    .quantity(15)
+                    .title("658")
+                    .build();
+
             Flux.just(item1, item2, item3)
                     .flatMap(repository::save)
                     .blockLast();
-
-            System.out.println("Let's inspect the beans provided by Spring Boot:");
-
-            String[] beanNames = context.getBeanDefinitionNames();
-            Arrays.sort(beanNames);
-            for (String beanName : beanNames) {
-                System.out.println(beanName);
-            }
         }
 
         @Test
-        @DisplayName("when called, then it should return all persisted items")
-        void whenCalled_shouldReturnAllPersistedItems() {
-            final Flux<Item> items = repository.findAllItems().log();
+        @DisplayName("when query is empty, then it should return all persisted items sorted by title")
+        void whenQueryIsEmpty_shouldReturnAllPersistedItemsSortedByTitle() {
+            final ItemQuery itemQuery = ItemQuery.builder().build();
+            final Flux<Item> items = repository.findByQuery(itemQuery);
 
             StepVerifier.create(items)
                     .expectSubscription()
-                    .expectNextCount(3)
+                    .expectNext(item2, item1, item3)
+                    .verifyComplete();
+        }
+
+        @Test
+        @DisplayName("when query contains 'title', then it should return all items matching it")
+        void whenQueryContainsTitle_shouldReturnAllItemsMatchingIt() {
+            final ItemQuery query = ItemQuery.builder().title(item1.getTitle()).build();
+            final Flux<Item> items = repository.findByQuery(query);
+
+            StepVerifier.create(items)
+                    .expectSubscription()
+                    .expectNext(item1)
+                    .verifyComplete();
+        }
+
+        @Test
+        @DisplayName("when query contains 'minQuantity', then it should return all the items which have a quantity greater than or equals to it")
+        void whenQueryContainsMinQuantity_shouldReturnAllTheItemsWhichHaveAPriceGreaterThanOrEqualsToIt() {
+            final ItemQuery query = ItemQuery.builder().minQuantity(10).build();
+            final Flux<Item> items = repository.findByQuery(query);
+
+            StepVerifier.create(items)
+                    .expectSubscription()
+                    .expectNext(item2)
+                    .expectNext(item3)
+                    .verifyComplete();
+        }
+
+        @Test
+        @DisplayName("when query contains multiple elements, then it should return only the item matching it")
+        void whenQueryContainsMultipleElements_shouldReturnOnlyTheItemMatchingIt() {
+            final ItemQuery query = ItemQuery.builder()
+                    .minQuantity(10)
+                    .title(item1.getTitle())
+                    .minQuantity(item1.getQuantity())
+                    .build();
+            final Flux<Item> items = repository.findByQuery(query);
+
+            StepVerifier.create(items)
+                    .expectSubscription()
+                    .expectNext(item1)
                     .verifyComplete();
         }
     }
@@ -124,8 +172,8 @@ class ReactiveMongoItemRepositoryTest {
     class SaveMethod {
 
         @Test
-        @DisplayName("when called, then it should persist the item")
-        void whenCalled_shouldPersistTheItem() {
+        @DisplayName("when called and the item was not previously saved, then it should persist the item")
+        void whenCalledAndTheItemsWasNotPreviouslySaved_shouldPersistTheItem() {
             final Item item = ItemFactoryForTests.newItemDomain();
 
             final Mono<Item> mono = repository.save(item)
@@ -134,6 +182,22 @@ class ReactiveMongoItemRepositoryTest {
             StepVerifier.create(mono)
                     .expectSubscription()
                     .expectNext(item)
+                    .verifyComplete();
+        }
+
+        @Test
+        @DisplayName("when called and the item was previously saved, then it should update the item")
+        void whenTheFieldIdMatchesAnExistingItem_shouldThrowAnException() {
+            final Item persistedTime = ItemFactoryForTests.newItemDomain();
+            final Item newItem = persistedTime.toBuilder().title("newTitle").build();
+
+            final Mono<Item> mono = repository.save(persistedTime)
+                    .then(repository.save(newItem))
+                    .then(repository.findItemById(persistedTime.getId()));
+
+            StepVerifier.create(mono)
+                    .expectSubscription()
+                    .expectNext(newItem)
                     .verifyComplete();
         }
     }
