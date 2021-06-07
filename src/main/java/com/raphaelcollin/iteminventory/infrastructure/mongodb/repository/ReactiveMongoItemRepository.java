@@ -52,4 +52,14 @@ public class ReactiveMongoItemRepository implements ItemRepository {
                 .save(serializer.toDocument(item))
                 .then();
     }
+
+    @Override
+    public Mono<Boolean> deleteById(final String itemId) {
+        final Query query = new Query(new Criteria("id").is(itemId));
+
+        return mongoTemplate
+                .remove(query, ItemDocument.class)
+                .map(deleteResult -> deleteResult.getDeletedCount() > 0);
+
+    }
 }

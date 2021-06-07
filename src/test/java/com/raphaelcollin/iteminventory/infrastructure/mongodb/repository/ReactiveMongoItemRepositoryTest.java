@@ -201,6 +201,39 @@ class ReactiveMongoItemRepositoryTest {
         }
     }
 
+    @Nested
+    @DisplayName("method: deleteById(String)")
+    class DeleteByIdMethod {
+        private final Item item = ItemFactoryForTests.newItemDomain();
+
+        @BeforeEach
+        void setUp() {
+            repository.save(item).block();
+        }
+
+        @Test
+        @DisplayName("when called with existing id, then it should return true")
+        void whenCalledWithExistingId_shouldReturnTrue() {
+            Mono<Boolean> mono = repository.deleteById(item.getId());
+
+            StepVerifier.create(mono)
+                    .expectSubscription()
+                    .expectNext(true)
+                    .verifyComplete();
+        }
+
+        @Test
+        @DisplayName("when called with unknown id, then it should return false")
+        void whenCalledWithUnknown_shouldReturnFalse() {
+            Mono<Boolean> mono = repository.deleteById(UUID.randomUUID().toString());
+
+            StepVerifier.create(mono)
+                    .expectSubscription()
+                    .expectNext(false)
+                    .verifyComplete();
+        }
+    }
+
     private void cleanCollection() {
         template.dropCollection(ItemDocument.class).block();
     }
