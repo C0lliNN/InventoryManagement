@@ -5,6 +5,6 @@ import reactor.core.publisher.Mono;
 
 public interface ItemRepository {
     Flux<Item> findByQuery(final ItemQuery query);
-    Mono<Item> findItemById(final String itemId);
+    Mono<Item> findById(final String itemId);
     Mono<Void> save(final Item item);
 }

@@ -135,20 +135,19 @@ class ReactiveMongoItemRepositoryTest {
     }
 
     @Nested
-    @DisplayName("method: findItemById(String)")
-    class FindItemByIdMethod {
+    @DisplayName("method: findById(String)")
+    class FindByIdMethod {
         private final Item item = ItemFactoryForTests.newItemDomain();
 
         @BeforeEach
         void setUp() {
-            repository.save(item)
-                    .block();
+            repository.save(item).block();
         }
 
         @Test
         @DisplayName("when called with existing id, then it should return the matching item wrapped into a Mono")
         void whenCalledWithExistingId_shouldReturnTheMatchingItemWrappedIntoAMono() {
-            final Mono<Item> foundItem = repository.findItemById(item.getId());
+            final Mono<Item> foundItem = repository.findById(item.getId());
 
             StepVerifier.create(foundItem)
                     .expectSubscription()
@@ -159,7 +158,7 @@ class ReactiveMongoItemRepositoryTest {
         @Test
         @DisplayName("when called with unknown id, then it should return an empty Mono")
         void whenCalledWithUnknownId_shouldReturnAnEmptyMono() {
-            final Mono<Item> foundItem = repository.findItemById(UUID.randomUUID().toString());
+            final Mono<Item> foundItem = repository.findById(UUID.randomUUID().toString());
 
             StepVerifier.create(foundItem)
                     .expectSubscription()
@@ -177,7 +176,7 @@ class ReactiveMongoItemRepositoryTest {
             final Item item = ItemFactoryForTests.newItemDomain();
 
             final Mono<Item> mono = repository.save(item)
-                    .then(repository.findItemById(item.getId()));
+                    .then(repository.findById(item.getId()));
 
             StepVerifier.create(mono)
                     .expectSubscription()
@@ -193,7 +192,7 @@ class ReactiveMongoItemRepositoryTest {
 
             final Mono<Item> mono = repository.save(persistedTime)
                     .then(repository.save(newItem))
-                    .then(repository.findItemById(persistedTime.getId()));
+                    .then(repository.findById(persistedTime.getId()));
 
             StepVerifier.create(mono)
                     .expectSubscription()

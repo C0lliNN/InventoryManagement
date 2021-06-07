@@ -7,7 +7,6 @@ import com.raphaelcollin.iteminventory.infrastructure.mongodb.document.ItemDocum
 import com.raphaelcollin.iteminventory.infrastructure.mongodb.serializer.DocumentSerializer;
 import lombok.AllArgsConstructor;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
@@ -41,7 +40,7 @@ public class ReactiveMongoItemRepository implements ItemRepository {
     }
 
     @Override
-    public Mono<Item> findItemById(final String itemId) {
+    public Mono<Item> findById(final String itemId) {
         return mongoTemplate
                 .findById(itemId, ItemDocument.class)
                 .map(serializer::fromDocument);
