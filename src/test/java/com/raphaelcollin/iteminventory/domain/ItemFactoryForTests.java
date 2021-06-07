@@ -29,4 +29,12 @@ public class ItemFactoryForTests {
                 FAKER.random().nextInt(1, 1000)
         );
     }
+
+    public static ItemQuery newItemQuery() {
+        return ItemQuery
+                .builder()
+                .title(FAKER.name().title())
+                .minQuantity(FAKER.random().nextInt(5, 10))
+                .build();
+    }
 }
