@@ -3,7 +3,9 @@ package com.raphaelcollin.iteminventory.infrastructure.mongodb.repository;
 import com.raphaelcollin.iteminventory.domain.Item;
 import com.raphaelcollin.iteminventory.domain.ItemFactoryForTests;
 import com.raphaelcollin.iteminventory.domain.ItemRepository;
+import com.raphaelcollin.iteminventory.infranstructure.config.DatabaseTestAutoConfiguration;
 import com.raphaelcollin.iteminventory.infrastructure.mongodb.document.ItemDocument;
+import com.raphaelcollin.iteminventory.infrastructure.mongodb.serializer.ItemSerializer;
 import com.raphaelcollin.iteminventory.utils.initializers.DatabaseContainerInitializer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,18 +13,29 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 
-@SpringBootTest
+@SpringBootTest(
+        classes = {
+                DatabaseTestAutoConfiguration.class,
+                ReactiveMongoItemRepository.class,
+                ItemSerializer.class
+        },
+        webEnvironment = SpringBootTest.WebEnvironment.NONE
+)
 @ContextConfiguration(initializers = DatabaseContainerInitializer.class)
+@EnableAutoConfiguration
 class ReactiveMongoItemRepositoryTest {
 
     @Autowired
@@ -30,6 +43,9 @@ class ReactiveMongoItemRepositoryTest {
 
     @Autowired
     private ReactiveMongoTemplate template;
+
+    @Autowired
+    private ApplicationContext context;
 
     @AfterEach
     void tearDown() {
@@ -47,8 +63,15 @@ class ReactiveMongoItemRepositoryTest {
         void setUp() {
             Flux.just(item1, item2, item3)
                     .flatMap(repository::save)
-                    .log()
                     .blockLast();
+
+            System.out.println("Let's inspect the beans provided by Spring Boot:");
+
+            String[] beanNames = context.getBeanDefinitionNames();
+            Arrays.sort(beanNames);
+            for (String beanName : beanNames) {
+                System.out.println(beanName);
+            }
         }
 
         @Test
