@@ -21,7 +21,7 @@ class SearchItemsTest {
                 "title1,3,title1,3",
                 "title1,0,title1,0",
                 "null,3,null,3",
-                "null,null,null,null",
+                "null,0,null,0",
         })
         @DisplayName("when called, then it should return the correct domain object")
         void whenCalled_shouldReturnTheCorrectDomainObject(

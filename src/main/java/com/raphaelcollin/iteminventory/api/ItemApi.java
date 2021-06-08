@@ -16,24 +16,30 @@ import reactor.core.publisher.Mono;
 public class ItemApi {
     private final ItemService itemService;
     private final IdGenerator idGenerator;
+    private final RequestValidator validator;
 
-    public Mono<Void> save(final CreateItem createItem) {
-        return itemService.save(createItem.toDomain(idGenerator.newId()));
+    public Flux<Item> findItems(final SearchItems searchItems) {
+        return itemService.findByQuery(searchItems.toDomain());
     }
 
     public Mono<Item> findById(final String itemId) {
         return itemService.findById(itemId);
     }
 
-    public Flux<Item> findItems(final SearchItems searchItems) {
-        return itemService.findByQuery(searchItems.toDomain());
+    public Mono<Void> save(final CreateItem createItem) {
+        return validator
+                .validate(createItem)
+                .map(create -> itemService.save(create.toDomain(idGenerator.newId())))
+                .then();
     }
 
     public Mono<Void> updateById(final String itemId, final UpdateItem updateItem) {
-        return itemService
-                .findById(itemId)
-                .map(updateItem::toDomain)
-                .flatMap(itemService::save)
-                .then();
+        return validator
+                .validate(updateItem)
+                .flatMap(update -> itemService.findById(itemId).map(updateItem::toDomain).flatMap(itemService::save));
+    }
+
+    public Mono<Void> deleteById(final String itemId) {
+        return itemService.deleteById(itemId);
     }
 }

@@ -2,6 +2,8 @@ package com.raphaelcollin.iteminventory.domain;
 
 import com.github.javafaker.Faker;
 import com.raphaelcollin.iteminventory.api.dto.in.CreateItem;
+import com.raphaelcollin.iteminventory.api.dto.in.SearchItems;
+import com.raphaelcollin.iteminventory.api.dto.in.UpdateItem;
 import com.raphaelcollin.iteminventory.infrastructure.mongodb.document.ItemDocument;
 
 import java.math.BigDecimal;
@@ -46,5 +48,18 @@ public class ItemFactoryForTests {
                 BigDecimal.valueOf(FAKER.random().nextInt(12, 100)),
                 FAKER.random().nextInt(1, 1000)
         );
+    }
+
+    public static UpdateItem newUpdateItemDto() {
+        return new UpdateItem(
+                FAKER.name().title(),
+                FAKER.lorem().sentence(),
+                BigDecimal.valueOf(FAKER.random().nextInt(12, 100)),
+                FAKER.random().nextInt(1, 1000)
+        );
+    }
+
+    public static SearchItems newSearchItems() {
+        return new SearchItems(FAKER.name().title(), FAKER.random().nextInt(2, 10));
     }
 }
