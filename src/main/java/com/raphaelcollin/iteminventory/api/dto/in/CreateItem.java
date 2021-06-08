@@ -4,6 +4,7 @@ import com.raphaelcollin.iteminventory.domain.Item;
 import lombok.Value;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
@@ -23,7 +24,8 @@ public class CreateItem {
     BigDecimal price;
 
     @Positive(message = "the field must contain  a positive value")
-    int quantity;
+    @NotNull
+    Integer quantity;
 
     public Item toDomain(final String itemId) {
         return Item
