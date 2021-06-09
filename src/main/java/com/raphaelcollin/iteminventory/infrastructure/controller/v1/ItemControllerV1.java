@@ -40,13 +40,13 @@ public class ItemControllerV1 {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<Void> saveItem(@Valid @RequestBody CreateItem createItem) {
+    public Mono<Void> saveItem(@RequestBody CreateItem createItem) {
         return itemApi.save(createItem);
     }
 
     @PatchMapping(value = "/{itemId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public Mono<Void> updateItemById(@PathVariable("itemId") String itemId, @RequestBody @Valid UpdateItem updateItem) {
+    public Mono<Void> updateItemById(@PathVariable("itemId") String itemId, @RequestBody UpdateItem updateItem) {
         return itemApi.updateById(itemId, updateItem);
     }
 

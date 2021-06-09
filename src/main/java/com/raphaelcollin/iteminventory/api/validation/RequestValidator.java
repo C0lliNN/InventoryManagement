@@ -1,6 +1,6 @@
-package com.raphaelcollin.iteminventory.api;
+package com.raphaelcollin.iteminventory.api.validation;
 
-import com.raphaelcollin.iteminventory.api.validation.RequestValidationException;
+import com.raphaelcollin.iteminventory.domain.exceptions.RequestValidationException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.FieldError;

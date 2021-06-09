@@ -4,6 +4,7 @@ import com.raphaelcollin.iteminventory.api.dto.in.CreateItem;
 import com.raphaelcollin.iteminventory.api.dto.in.SearchItems;
 import com.raphaelcollin.iteminventory.api.dto.in.UpdateItem;
 import com.raphaelcollin.iteminventory.api.dto.out.Item;
+import com.raphaelcollin.iteminventory.api.validation.RequestValidator;
 import com.raphaelcollin.iteminventory.domain.ItemService;
 import com.raphaelcollin.iteminventory.domain.common.IdGenerator;
 import lombok.AllArgsConstructor;

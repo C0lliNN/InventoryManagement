@@ -1,4 +1,4 @@
-package com.raphaelcollin.iteminventory.api.validation;
+package com.raphaelcollin.iteminventory.domain.exceptions;
 
 import lombok.Getter;
 import org.springframework.validation.FieldError;
