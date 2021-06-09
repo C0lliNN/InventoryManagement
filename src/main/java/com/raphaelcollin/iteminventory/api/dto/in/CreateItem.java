@@ -19,7 +19,7 @@ public class CreateItem {
     @Size(max = 1000, message = "the field must not exceed {max} characters")
     String description;
 
-    @NotBlank(message = "the field is mandatory")
+    @NotNull(message = "the field is mandatory")
     @Positive(message = "the field must contain a positive value")
     BigDecimal price;
 

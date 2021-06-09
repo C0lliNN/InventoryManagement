@@ -33,8 +33,7 @@ public class ItemApi {
     public Mono<Void> save(final CreateItem createItem) {
         return validator
                 .validate(createItem)
-                .map(create -> itemService.save(create.toDomain(idGenerator.newId())))
-                .then();
+                .flatMap(create -> itemService.save(create.toDomain(idGenerator.newId())));
     }
 
     public Mono<Void> updateById(final String itemId, final UpdateItem updateItem) {
