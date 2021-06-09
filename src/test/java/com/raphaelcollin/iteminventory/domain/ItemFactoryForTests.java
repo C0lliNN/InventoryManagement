@@ -62,4 +62,14 @@ public class ItemFactoryForTests {
     public static SearchItems newSearchItems() {
         return new SearchItems(FAKER.name().title(), FAKER.random().nextInt(2, 10));
     }
+
+    public static com.raphaelcollin.iteminventory.api.dto.out.Item newItemDto() {
+        return new com.raphaelcollin.iteminventory.api.dto.out.Item(
+                FAKER.internet().uuid(),
+                FAKER.name().title(),
+                FAKER.lorem().sentence(),
+                BigDecimal.valueOf(FAKER.random().nextInt(12, 100)),
+                FAKER.random().nextInt(1, 1000)
+        );
+    }
 }

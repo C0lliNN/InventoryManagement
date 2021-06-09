@@ -3,7 +3,7 @@ package com.raphaelcollin.iteminventory.api;
 import com.raphaelcollin.iteminventory.api.dto.in.CreateItem;
 import com.raphaelcollin.iteminventory.api.dto.in.SearchItems;
 import com.raphaelcollin.iteminventory.api.dto.in.UpdateItem;
-import com.raphaelcollin.iteminventory.domain.Item;
+import com.raphaelcollin.iteminventory.api.dto.out.Item;
 import com.raphaelcollin.iteminventory.domain.ItemService;
 import com.raphaelcollin.iteminventory.domain.common.IdGenerator;
 import lombok.AllArgsConstructor;
@@ -19,11 +19,15 @@ public class ItemApi {
     private final RequestValidator validator;
 
     public Flux<Item> findItems(final SearchItems searchItems) {
-        return itemService.findByQuery(searchItems.toDomain());
+        return itemService
+                .findByQuery(searchItems.toDomain())
+                .map(Item::fromDomain);
     }
 
     public Mono<Item> findById(final String itemId) {
-        return itemService.findById(itemId);
+        return itemService
+                .findById(itemId)
+                .map(Item::fromDomain);
     }
 
     public Mono<Void> save(final CreateItem createItem) {

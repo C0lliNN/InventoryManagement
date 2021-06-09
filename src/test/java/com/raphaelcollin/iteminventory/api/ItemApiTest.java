@@ -70,11 +70,13 @@ class ItemApiTest {
         }
 
         @Test
-        @DisplayName("when called, then it should forward the call to the underlying service")
-        void whenCalled_shouldForwardTheCallToTheUnderlyingService() {
+        @DisplayName("when called, then it should forward the call to the underlying service and convert the result to dto")
+        void whenCalled_shouldForwardTheCallToTheUnderlyingServiceAndConvertTheResultDto() {
             StepVerifier.create(itemApi.findItems(searchItems))
                     .expectSubscription()
-                    .expectNext(item1, item2, item3)
+                    .expectNext(com.raphaelcollin.iteminventory.api.dto.out.Item.fromDomain(item1))
+                    .expectNext(com.raphaelcollin.iteminventory.api.dto.out.Item.fromDomain(item2))
+                    .expectNext(com.raphaelcollin.iteminventory.api.dto.out.Item.fromDomain(item3))
                     .verifyComplete();
         }
     }
@@ -99,10 +101,10 @@ class ItemApiTest {
 
         @Test
         @DisplayName("when called, then it should forward the call to the underlying service")
-        void whenCalled_shouldForwardTheCallToTheUnderlyingService() {
+        void whenCalled_shouldForwardTheCallToTheUnderlyingServiceAndConvertTheResultDto() {
             StepVerifier.create(itemApi.findById(item1.getId()))
                     .expectSubscription()
-                    .expectNext(item1)
+                    .expectNext(com.raphaelcollin.iteminventory.api.dto.out.Item.fromDomain(item1))
                     .verifyComplete();
         }
     }
