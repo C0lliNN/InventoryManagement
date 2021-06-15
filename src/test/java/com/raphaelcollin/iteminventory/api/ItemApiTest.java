@@ -3,13 +3,13 @@ package com.raphaelcollin.iteminventory.api;
 import com.raphaelcollin.iteminventory.api.dto.in.CreateItem;
 import com.raphaelcollin.iteminventory.api.dto.in.SearchItems;
 import com.raphaelcollin.iteminventory.api.dto.in.UpdateItem;
-import com.raphaelcollin.iteminventory.domain.exceptions.RequestValidationException;
 import com.raphaelcollin.iteminventory.api.validation.RequestValidator;
 import com.raphaelcollin.iteminventory.domain.Item;
 import com.raphaelcollin.iteminventory.domain.ItemFactoryForTests;
 import com.raphaelcollin.iteminventory.domain.ItemQuery;
 import com.raphaelcollin.iteminventory.domain.ItemService;
 import com.raphaelcollin.iteminventory.domain.common.IdGenerator;
+import com.raphaelcollin.iteminventory.domain.exceptions.RequestValidationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -131,10 +131,13 @@ class ItemApiTest {
         @DisplayName("when called, then it should forward the call to the underlying service")
         void whenCalled_shouldForwardTheCallToTheUnderlyingService() {
             when(requestValidator.validate(createItem)).thenReturn(Mono.just(createItem));
-            when(itemService.save(item)).thenReturn(Mono.empty());
+            when(itemService.save(item)).thenReturn(Mono.just(item));
             when(idGenerator.newId()).thenReturn(item.getId());
 
-            itemApi.save(createItem).block();
+            StepVerifier.create(itemApi.save(createItem))
+                    .expectSubscription()
+                    .expectNext(com.raphaelcollin.iteminventory.api.dto.out.Item.fromDomain(item))
+                    .verifyComplete();
 
             verify(itemService).save(item);
             verify(idGenerator).newId();
@@ -177,7 +180,7 @@ class ItemApiTest {
         void whenCalled_shouldForwardTheCallsToTheUnderlyingServices() {
             when(requestValidator.validate(updateItem)).thenReturn(Mono.just(updateItem));
             when(itemService.findById(existingItem.getId())).thenReturn(Mono.just(existingItem));
-            when(itemService.save(newItem)).thenReturn(Mono.empty());
+            when(itemService.save(newItem)).thenReturn(Mono.just(newItem));
 
             StepVerifier.create(itemApi.updateById(existingItem.getId(), updateItem))
                     .expectSubscription()

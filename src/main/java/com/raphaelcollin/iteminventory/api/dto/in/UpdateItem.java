@@ -19,7 +19,7 @@ public class UpdateItem {
     @Positive(message = "the field must contain a positive value")
     BigDecimal price;
 
-    @Positive(message = "the field must contain  a positive value")
+    @Positive(message = "the field must contain a positive value")
     Integer quantity;
 
     public Item toDomain(final Item item) {

@@ -31,16 +31,19 @@ public class ItemApi {
                 .map(Item::fromDomain);
     }
 
-    public Mono<Void> save(final CreateItem createItem) {
+    public Mono<Item> save(final CreateItem createItem) {
         return validator
                 .validate(createItem)
-                .flatMap(create -> itemService.save(create.toDomain(idGenerator.newId())));
+                .map(create -> create.toDomain(idGenerator.newId()))
+                .flatMap(itemService::save)
+                .map(Item::fromDomain).log();
     }
 
     public Mono<Void> updateById(final String itemId, final UpdateItem updateItem) {
         return validator
                 .validate(updateItem)
-                .flatMap(update -> itemService.findById(itemId).map(updateItem::toDomain).flatMap(itemService::save));
+                .flatMap(update -> itemService.findById(itemId).map(updateItem::toDomain).flatMap(itemService::save))
+                .then();
     }
 
     public Mono<Void> deleteById(final String itemId) {

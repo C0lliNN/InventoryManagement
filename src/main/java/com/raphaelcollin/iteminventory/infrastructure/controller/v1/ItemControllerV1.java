@@ -20,8 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.validation.Valid;
-
 @RestController
 @RequestMapping("/api/v1/items")
 @AllArgsConstructor
@@ -40,7 +38,7 @@ public class ItemControllerV1 {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<Void> saveItem(@RequestBody CreateItem createItem) {
+    public Mono<Item> saveItem(@RequestBody CreateItem createItem) {
         return itemApi.save(createItem);
     }
 

@@ -23,8 +23,8 @@ public class ItemService {
                 .switchIfEmpty(Mono.error(new EntityNotFoundException(format("Item with ID %s was not found", itemId))));
     }
 
-    public Mono<Void> save(final Item item) {
-        return itemRepository.save(item);
+    public Mono<Item> save(final Item item) {
+        return itemRepository.save(item).then(Mono.just(item));
     }
 
     public Mono<Void> deleteById(final String itemId) {

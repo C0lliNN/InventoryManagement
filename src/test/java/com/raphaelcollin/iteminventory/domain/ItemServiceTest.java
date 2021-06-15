@@ -2,6 +2,7 @@ package com.raphaelcollin.iteminventory.domain;
 
 import com.raphaelcollin.iteminventory.domain.exceptions.EntityNotFoundException;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -98,6 +99,11 @@ class ItemServiceTest {
     class SaveMethod {
         private final Item item = ItemFactoryForTests.newItemDomain();
 
+        @BeforeEach
+        void setUp() {
+            when(itemRepository.save(item)).thenReturn(Mono.empty());
+        }
+
         @AfterEach
         void tearDown() {
             verify(itemRepository).save(item);
@@ -107,7 +113,10 @@ class ItemServiceTest {
         @Test
         @DisplayName("when called, then it should forward the call to underlying item")
         void whenCalled_shouldForwardTheCallToUnderlyingItem() {
-            itemService.save(item);
+            StepVerifier.create(itemService.save(item))
+                    .expectSubscription()
+                    .expectNext(item)
+                    .verifyComplete();
         }
     }
 

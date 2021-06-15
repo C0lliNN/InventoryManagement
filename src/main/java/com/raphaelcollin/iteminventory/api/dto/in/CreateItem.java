@@ -23,8 +23,8 @@ public class CreateItem {
     @Positive(message = "the field must contain a positive value")
     BigDecimal price;
 
-    @Positive(message = "the field must contain  a positive value")
-    @NotNull
+    @Positive(message = "the field must contain a positive value")
+    @NotNull(message = "the field is mandatory")
     Integer quantity;
 
     public Item toDomain(final String itemId) {
