@@ -1,4 +1,4 @@
-package com.raphaelcollin.iteminventory.infrastructure.controller.v1;
+package com.raphaelcollin.iteminventory.infrastructure.controller.v2.handler;
 
 import com.github.javafaker.Faker;
 import com.raphaelcollin.iteminventory.api.dto.in.CreateItem;
@@ -45,8 +45,7 @@ import static org.hamcrest.Matchers.is;
 })
 @AutoConfigureWebTestClient
 @ComponentScan("com.raphaelcollin.iteminventory")
-class ItemControllerV1Test {
-
+class ItemHandlerTest {
     @Autowired
     private WebTestClient client;
 
@@ -72,7 +71,7 @@ class ItemControllerV1Test {
             .quantity(15)
             .build();
 
-    private static final String ROOT_URI = "/api/v1/items";
+    private static final String ROOT_URI = "/api/v2/items";
 
     @BeforeEach
     void setUp() {

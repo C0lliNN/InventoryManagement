@@ -23,7 +23,7 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequestMapping("/api/v1/items")
 @AllArgsConstructor
-public class ItemControllerV1 {
+public class ItemController {
     private final ItemApi itemApi;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
