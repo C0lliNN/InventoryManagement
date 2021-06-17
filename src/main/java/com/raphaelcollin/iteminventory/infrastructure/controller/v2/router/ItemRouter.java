@@ -4,6 +4,7 @@ import com.raphaelcollin.iteminventory.infrastructure.controller.v2.handler.Item
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.web.reactive.function.server.RequestPredicate;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -20,25 +21,17 @@ public class ItemRouter {
 
     @Bean
     public RouterFunction<ServerResponse> itemsRouter(ItemHandler handler) {
+        final RequestPredicate getItemsPredicate = GET(ROOT_ENDPOINT);
+        final RequestPredicate getItemPredicate = GET(ROOT_ENDPOINT + "/{itemId}");
+        final RequestPredicate postItemPredicate = POST(ROOT_ENDPOINT).and(accept(MediaType.APPLICATION_JSON));
+        final RequestPredicate patchItemPredicate = PATCH(ROOT_ENDPOINT + "/{itemId}").and(accept(MediaType.APPLICATION_JSON));
+        final RequestPredicate deleteItemPredicate = DELETE(ROOT_ENDPOINT + "/{itemId}");
+
         return RouterFunctions
-                .route(
-                        GET(ROOT_ENDPOINT),
-                        handler::findAllItems
-                )
-                .andRoute(
-                        GET(ROOT_ENDPOINT + "/{itemId}"),
-                        handler::findItemById
-                )
-                .andRoute(
-                        POST(ROOT_ENDPOINT).and(accept(MediaType.APPLICATION_JSON)),
-                        handler::saveItem)
-                .andRoute(
-                        PATCH(ROOT_ENDPOINT + "/{itemId}").and(accept(MediaType.APPLICATION_JSON)),
-                        handler::updateItemById
-                )
-                .andRoute(
-                        DELETE(ROOT_ENDPOINT + "/{itemId}"),
-                        handler::deleteItemById
-                );
+                .route(getItemsPredicate, handler::findAllItems)
+                .andRoute(getItemPredicate, handler::findItemById)
+                .andRoute(postItemPredicate, handler::saveItem)
+                .andRoute(patchItemPredicate, handler::updateItemById)
+                .andRoute(deleteItemPredicate, handler::deleteItemById);
     }
 }
