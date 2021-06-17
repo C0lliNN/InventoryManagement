@@ -38,8 +38,8 @@ public class ItemHandler {
 
     public @NonNull Mono<ServerResponse> saveItem(ServerRequest request) {
         final Function<Item, Mono<ServerResponse>> responseBuilder = item -> ServerResponse
-                .created(URI.create("/items/" + item.getId()))
-                .body(item, Item.class);
+                .created(URI.create("/api/v2/items/" + item.getId()))
+                .bodyValue(item);
 
         return request
                 .bodyToMono(CreateItem.class)
