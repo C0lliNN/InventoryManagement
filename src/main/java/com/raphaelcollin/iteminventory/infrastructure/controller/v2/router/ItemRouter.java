@@ -13,7 +13,6 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
 import static org.springframework.web.reactive.function.server.RequestPredicates.PATCH;
 import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
 import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
-import static org.springframework.web.reactive.function.server.RequestPredicates.contentType;
 
 @Configuration
 public class ItemRouter {
@@ -22,10 +21,24 @@ public class ItemRouter {
     @Bean
     public RouterFunction<ServerResponse> itemsRouter(ItemHandler handler) {
         return RouterFunctions
-                .route(GET(ROOT_ENDPOINT).and(contentType(MediaType.APPLICATION_JSON)), handler::findAllItems)
-                .andRoute(GET(ROOT_ENDPOINT + "/{itemId}").and(contentType(MediaType.APPLICATION_JSON)), handler::findItemById)
-                .andRoute(POST(ROOT_ENDPOINT).and(contentType(MediaType.APPLICATION_JSON)).and(accept(MediaType.APPLICATION_JSON)), handler::saveItem)
-                .andRoute(PATCH(ROOT_ENDPOINT + "/{itemId}").and(contentType(MediaType.APPLICATION_JSON)).and(accept(MediaType.APPLICATION_JSON)), handler::updateItemById)
-                .andRoute(DELETE(ROOT_ENDPOINT + "/{itemId}").and(contentType(MediaType.APPLICATION_JSON)).and(accept(MediaType.APPLICATION_JSON)), handler::deleteItemById);
+                .route(
+                        GET(ROOT_ENDPOINT),
+                        handler::findAllItems
+                )
+                .andRoute(
+                        GET(ROOT_ENDPOINT + "/{itemId}"),
+                        handler::findItemById
+                )
+                .andRoute(
+                        POST(ROOT_ENDPOINT).and(accept(MediaType.APPLICATION_JSON)),
+                        handler::saveItem)
+                .andRoute(
+                        PATCH(ROOT_ENDPOINT + "/{itemId}").and(accept(MediaType.APPLICATION_JSON)),
+                        handler::updateItemById
+                )
+                .andRoute(
+                        DELETE(ROOT_ENDPOINT + "/{itemId}"),
+                        handler::deleteItemById
+                );
     }
 }
