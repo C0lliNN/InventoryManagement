@@ -4,6 +4,7 @@ import com.raphaelcollin.iteminventory.domain.Item;
 import lombok.Value;
 
 import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -19,7 +20,7 @@ public class UpdateItem {
     @Positive(message = "the field must contain a positive value")
     BigDecimal price;
 
-    @Positive(message = "the field must contain a positive value")
+    @PositiveOrZero(message = "the field must contain a positive value")
     Integer quantity;
 
     public Item toDomain(final Item item) {

@@ -6,6 +6,7 @@ import lombok.Value;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 
@@ -23,7 +24,7 @@ public class CreateItem {
     @Positive(message = "the field must contain a positive value")
     BigDecimal price;
 
-    @Positive(message = "the field must contain a positive value")
+    @PositiveOrZero(message = "the field must contain a positive value")
     @NotNull(message = "the field is mandatory")
     Integer quantity;
 

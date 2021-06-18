@@ -362,15 +362,14 @@ class ItemHandlerTest {
                     .jsonPath("$.details[0].message").value(is("the field is mandatory"));
         }
 
-        @ParameterizedTest
-        @ValueSource(ints = {-29, -1, 0})
-        @DisplayName("when called without quantity, then it should return 400 error")
-        void whenCalledWithoutQuantity_shouldReturn400Error(int quantity) {
+        @Test
+        @DisplayName("when called with invalid quantity, then it should return 400 error")
+        void whenCalledWithInvalidQuantity_shouldReturn400Error() {
             final CreateItem createItem = new CreateItem(
                     faker.lorem().characters(),
                     faker.lorem().sentence(),
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
-                    quantity
+                    -1
             );
 
             client.post()
@@ -569,15 +568,14 @@ class ItemHandlerTest {
                     .verifyComplete();
         }
 
-        @ParameterizedTest
-        @ValueSource(ints = {-23, -1, 0})
+        @Test
         @DisplayName("when called with invalid quantity, then it should return 400 error")
-        void whenCalledWithInvalidQuantity_shouldReturn400Error(int quantity) {
+        void whenCalledWithInvalidQuantity_shouldReturn400Error() {
             final UpdateItem updateItem = new UpdateItem(
                     null,
                     null,
                     null,
-                    quantity
+                    -1
             );
 
             client.patch()
