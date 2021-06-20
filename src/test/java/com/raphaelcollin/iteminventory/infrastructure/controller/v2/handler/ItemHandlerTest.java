@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.http.MediaType;
@@ -35,6 +36,7 @@ import java.util.UUID;
 
 import static java.lang.String.format;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.doThrow;
 
 @ContextConfiguration(initializers = DatabaseContainerInitializer.class)
 @EnableAutoConfiguration
@@ -49,7 +51,7 @@ class ItemHandlerTest {
     @Autowired
     private WebTestClient client;
 
-    @Autowired
+    @SpyBean
     private ReactiveMongoItemRepository itemRepository;
 
     @Autowired
@@ -671,6 +673,31 @@ class ItemHandlerTest {
                     .expectSubscription()
                     .expectNext(expectedItem)
                     .verifyComplete();
+        }
+
+        @Test
+        @DisplayName("when some unexpected error is throw, then it should return 500")
+        void when() {
+            doThrow(RuntimeException.class)
+                    .when(itemRepository)
+                    .findById(item1.getId());
+
+            final UpdateItem updateItem = new UpdateItem(
+                    null,
+                    null,
+                    null,
+                    90
+            );
+
+            client.patch()
+                    .uri(ROOT_URI + "/" + item1.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(updateItem)
+                    .exchange()
+                    .expectStatus().is5xxServerError()
+                    .expectBody()
+                    .jsonPath("$.message").value(is("There's been an unexpected error. Please, contact support."))
+                    .jsonPath("$.details").isEmpty();
         }
     }
 
