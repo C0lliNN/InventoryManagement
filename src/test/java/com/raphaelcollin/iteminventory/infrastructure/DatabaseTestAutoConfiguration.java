@@ -1,4 +1,4 @@
-package com.raphaelcollin.iteminventory.infranstructure.config;
+package com.raphaelcollin.iteminventory.infrastructure;
 
 import org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.mongo.MongoReactiveDataAutoConfiguration;

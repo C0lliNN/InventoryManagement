@@ -4,7 +4,7 @@ import com.raphaelcollin.iteminventory.domain.Item;
 import com.raphaelcollin.iteminventory.domain.ItemFactoryForTests;
 import com.raphaelcollin.iteminventory.domain.ItemQuery;
 import com.raphaelcollin.iteminventory.domain.ItemRepository;
-import com.raphaelcollin.iteminventory.infranstructure.config.DatabaseTestAutoConfiguration;
+import com.raphaelcollin.iteminventory.infrastructure.DatabaseTestAutoConfiguration;
 import com.raphaelcollin.iteminventory.infrastructure.mongodb.document.ItemDocument;
 import com.raphaelcollin.iteminventory.infrastructure.mongodb.serializer.ItemSerializer;
 import com.raphaelcollin.iteminventory.utils.initializers.DatabaseContainerInitializer;
