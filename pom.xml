@@ -12,7 +12,7 @@
     <artifactId>Item-Inventory</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>Item Inventory</name>
-    <description>Demo project for Spring Boot</description>
+    <description>A Non-Blocking REST API developed in Java 11 + Spring Boot 2 to manage the Item Inventory of an Industry.</description>
     <properties>
         <java.version>11</java.version>
         <archunit.version>0.14.1</archunit.version>
