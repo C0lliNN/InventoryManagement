@@ -1,6 +1,6 @@
-package com.raphaelcollin.iteminventory.infrastructure.controller.v2.router;
+package com.raphaelcollin.iteminventory.infrastructure.rest.router;
 
-import com.raphaelcollin.iteminventory.infrastructure.controller.v2.handler.ItemHandler;
+import com.raphaelcollin.iteminventory.infrastructure.rest.handler.ItemHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -17,7 +17,7 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
 
 @Configuration
 public class ItemRouter {
-    private static final String ROOT_ENDPOINT = "/api/v2/items";
+    private static final String ROOT_ENDPOINT = "/api/v1/items";
 
     @Bean
     public RouterFunction<ServerResponse> itemsRouter(ItemHandler handler) {

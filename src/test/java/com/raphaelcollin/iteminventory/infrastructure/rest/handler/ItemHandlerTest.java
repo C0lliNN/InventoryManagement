@@ -1,4 +1,4 @@
-package com.raphaelcollin.iteminventory.infrastructure.controller.v2.handler;
+package com.raphaelcollin.iteminventory.infrastructure.rest.handler;
 
 import com.github.javafaker.Faker;
 import com.raphaelcollin.iteminventory.api.dto.in.CreateItem;
@@ -73,7 +73,7 @@ class ItemHandlerTest {
             .quantity(15)
             .build();
 
-    private static final String ROOT_URI = "/api/v2/items";
+    private static final String ROOT_URI = "/api/v1/items";
 
     @BeforeEach
     void setUp() {

@@ -1,4 +1,4 @@
-package com.raphaelcollin.iteminventory.infrastructure.controller.v2.exception;
+package com.raphaelcollin.iteminventory.infrastructure.rest.exception;
 
 import com.raphaelcollin.iteminventory.api.dto.out.ExceptionBody;
 import lombok.NonNull;

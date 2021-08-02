@@ -1,4 +1,4 @@
-package com.raphaelcollin.iteminventory.infrastructure.controller.v2.handler;
+package com.raphaelcollin.iteminventory.infrastructure.rest.handler;
 
 import com.raphaelcollin.iteminventory.api.ItemApi;
 import com.raphaelcollin.iteminventory.api.dto.in.CreateItem;
