@@ -1,5 +1,6 @@
 package com.raphaelcollin.iteminventory.infrastructure.rest.router;
 
+import com.raphaelcollin.iteminventory.infrastructure.rest.documentation.ItemEndpointDocumentation;
 import com.raphaelcollin.iteminventory.infrastructure.rest.handler.ItemHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +21,7 @@ public class ItemRouter {
     private static final String ROOT_ENDPOINT = "/api/v1/items";
 
     @Bean
+    @ItemEndpointDocumentation
     public RouterFunction<ServerResponse> itemsRouter(ItemHandler handler) {
         final RequestPredicate getItemsPredicate = GET(ROOT_ENDPOINT);
         final RequestPredicate getItemPredicate = GET(ROOT_ENDPOINT + "/{itemId}");

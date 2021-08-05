@@ -19,6 +19,7 @@
         <javafaker.version>1.0.2</javafaker.version>
         <testcontainers.version>1.15.3</testcontainers.version>
         <jacoco.version>0.8.7</jacoco.version>
+        <springdoc.version>1.5.7</springdoc.version>
     </properties>
     <dependencies>
         <dependency>
@@ -71,6 +72,11 @@
             <artifactId>archunit-junit5</artifactId>
             <version>${archunit.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-webflux-ui</artifactId>
+            <version>${springdoc.version}</version>
         </dependency>
     </dependencies>
 
