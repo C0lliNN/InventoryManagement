@@ -20,6 +20,7 @@
         <testcontainers.version>1.15.3</testcontainers.version>
         <jacoco.version>0.8.7</jacoco.version>
         <springdoc.version>1.5.7</springdoc.version>
+        <aws.sdk.version>2.16.60</aws.sdk.version>
     </properties>
     <dependencies>
         <dependency>
@@ -78,7 +79,23 @@
             <artifactId>springdoc-openapi-webflux-ui</artifactId>
             <version>${springdoc.version}</version>
         </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
+        </dependency>
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>${aws.sdk.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>

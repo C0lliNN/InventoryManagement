@@ -1,4 +1,3 @@
-# Use root/example as user/password credentials
 version: '3.1'
 
 services:
@@ -11,7 +10,18 @@ services:
     image: mongo-express
     restart: always
     ports:
-      - 8081:8081
+      - "8081:8081"
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: root
+  localstack:
+    container_name: aws-localstack-item-inventory
+    image: localstack/localstack:0.12.11
+    ports:
+      - "9000:4566"
+    environment:
+      - DEFAULT_REGION=us-east-2
+      - SERVICES=s3
+      - START_WEB=0
+    volumes:
+      - ./src/test/resources/localstack/init-scripts/setup_localstack.sh:/docker-entrypoint-initaws.d/init.sh
