@@ -22,7 +22,7 @@ public class ItemRouter {
 
     @Bean
     @ItemEndpointDocumentation
-    public RouterFunction<ServerResponse> itemsRouter(ItemHandler handler) {
+    public RouterFunction<ServerResponse> itemRouterFunction(ItemHandler handler) {
         final RequestPredicate getItemsPredicate = GET(ROOT_ENDPOINT);
         final RequestPredicate getItemPredicate = GET(ROOT_ENDPOINT + "/{itemId}");
         final RequestPredicate postItemPredicate = POST(ROOT_ENDPOINT).and(accept(MediaType.APPLICATION_JSON));
