@@ -15,7 +15,7 @@ services:
       ME_CONFIG_MONGODB_ADMINUSERNAME: root
       ME_CONFIG_MONGODB_ADMINPASSWORD: root
   localstack:
-    container_name: aws-localstack-item-inventory
+    container_name: aws-localstack-inventory-management
     image: localstack/localstack:0.12.11
     ports:
       - "9000:4566"

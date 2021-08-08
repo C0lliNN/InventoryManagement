@@ -1,6 +1,6 @@
 package com.raphaelcollin.inventorymanagement.api.dto.in;
 
-import com.raphaelcollin.inventorymanagement.domain.Item;
+import com.raphaelcollin.inventorymanagement.domain.Product;
 import lombok.Value;
 
 import javax.validation.constraints.Positive;
@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.util.Optional;
 
 @Value
-public class UpdateItem {
+public class UpdateProduct {
     @Size(max = 150, message = "the field must not exceed {max} characters")
     String title;
 
@@ -23,8 +23,8 @@ public class UpdateItem {
     @PositiveOrZero(message = "the field must contain a positive value")
     Integer quantity;
 
-    public Item toDomain(final Item item) {
-        final Item.ItemBuilder builder = item.toBuilder();
+    public Product toDomain(final Product product) {
+        final Product.ProductBuilder builder = product.toBuilder();
 
         getTitle().map(builder::title);
         getDescription().map(builder::description);

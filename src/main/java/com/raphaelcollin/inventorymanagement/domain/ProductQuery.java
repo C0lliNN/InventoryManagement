@@ -7,7 +7,7 @@ import java.util.Optional;
 
 @Value
 @Builder
-public class ItemQuery {
+public class ProductQuery {
     String title;
     Integer minQuantity;
 

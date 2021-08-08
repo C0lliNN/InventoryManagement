@@ -6,12 +6,12 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-class ItemTest {
+class ProductTest {
 
     @Nested
-    @DisplayName("class: ItemBuilder")
-    class ItemBuilderClass {
-        private final Item ITEM = ItemFactoryForTests.newItemDomain();
+    @DisplayName("class: ProductBuilder")
+    class ProductBuilderClass {
+        private final Product Product = ProductFactoryForTests.newProductDomain();
 
         @Nested
         @DisplayName("method: build()")
@@ -20,7 +20,7 @@ class ItemTest {
             @Test
             @DisplayName("when called and 'id' is null, then it should throw a NullPointerException")
             void whenCalledAndIdIsNull_shouldThrowANullPointerException() {
-                assertThatThrownBy(() -> ITEM.toBuilder().id(null).build())
+                assertThatThrownBy(() -> Product.toBuilder().id(null).build())
                         .isInstanceOf(NullPointerException.class)
                         .hasMessage("id is marked non-null but is null");
             }
@@ -28,7 +28,7 @@ class ItemTest {
             @Test
             @DisplayName("when called and 'title' is null, then it should throw a NullPointerException")
             void whenCalledAndTitleIsNull_shouldThrowANullPointerException() {
-                assertThatThrownBy(() -> ITEM.toBuilder().title(null).build())
+                assertThatThrownBy(() -> Product.toBuilder().title(null).build())
                         .isInstanceOf(NullPointerException.class)
                         .hasMessage("title is marked non-null but is null");
             }
@@ -36,7 +36,7 @@ class ItemTest {
             @Test
             @DisplayName("when called and 'description' is null, then it should throw a NullPointerException")
             void whenCalledAndDescriptionIsNull_shouldThrowANullPointerException() {
-                assertThatThrownBy(() -> ITEM.toBuilder().description(null).build())
+                assertThatThrownBy(() -> Product.toBuilder().description(null).build())
                         .isInstanceOf(NullPointerException.class)
                         .hasMessage("description is marked non-null but is null");
             }
@@ -44,7 +44,7 @@ class ItemTest {
             @Test
             @DisplayName("when called and 'price' is null, then it should throw a NullPointerException")
             void whenCalledAndPriceIsNull_shouldThrowANullPointerException() {
-                assertThatThrownBy(() -> ITEM.toBuilder().price(null).build())
+                assertThatThrownBy(() -> Product.toBuilder().price(null).build())
                         .isInstanceOf(NullPointerException.class)
                         .hasMessage("price is marked non-null but is null");
             }

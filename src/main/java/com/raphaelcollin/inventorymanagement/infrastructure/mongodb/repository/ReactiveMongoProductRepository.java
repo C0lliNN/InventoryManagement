@@ -1,9 +1,9 @@
 package com.raphaelcollin.inventorymanagement.infrastructure.mongodb.repository;
 
-import com.raphaelcollin.inventorymanagement.domain.Item;
-import com.raphaelcollin.inventorymanagement.domain.ItemQuery;
-import com.raphaelcollin.inventorymanagement.domain.ItemRepository;
-import com.raphaelcollin.inventorymanagement.infrastructure.mongodb.document.ItemDocument;
+import com.raphaelcollin.inventorymanagement.domain.Product;
+import com.raphaelcollin.inventorymanagement.domain.ProductQuery;
+import com.raphaelcollin.inventorymanagement.domain.ProductRepository;
+import com.raphaelcollin.inventorymanagement.infrastructure.mongodb.document.ProductDocument;
 import com.raphaelcollin.inventorymanagement.infrastructure.mongodb.serializer.DocumentSerializer;
 import lombok.AllArgsConstructor;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -17,48 +17,48 @@ import java.util.Comparator;
 
 @Repository
 @AllArgsConstructor
-public class ReactiveMongoItemRepository implements ItemRepository {
+public class ReactiveMongoProductRepository implements ProductRepository {
     private final ReactiveMongoTemplate mongoTemplate;
-    private final DocumentSerializer<Item, ItemDocument> serializer;
+    private final DocumentSerializer<Product, ProductDocument> serializer;
 
     @Override
-    public Flux<Item> findByQuery(final ItemQuery itemQuery) {
+    public Flux<Product> findByQuery(final ProductQuery productQuery) {
         final Query mongoQuery = new Query();
 
-        itemQuery.getTitle()
+        productQuery.getTitle()
                 .ifPresent(title -> mongoQuery.addCriteria(new Criteria("title").is(title)));
 
-        itemQuery.getMinQuantity()
+        productQuery.getMinQuantity()
                 .ifPresent(quantity -> mongoQuery.addCriteria(new Criteria("quantity").gte(quantity)));
 
         return mongoTemplate
-                .query(ItemDocument.class)
+                .query(ProductDocument.class)
                 .matching(mongoQuery)
                 .all()
-                .sort(Comparator.comparing(ItemDocument::getTitle))
+                .sort(Comparator.comparing(ProductDocument::getTitle))
                 .map(serializer::fromDocument);
     }
 
     @Override
-    public Mono<Item> findById(final String itemId) {
+    public Mono<Product> findById(final String productId) {
         return mongoTemplate
-                .findById(itemId, ItemDocument.class)
+                .findById(productId, ProductDocument.class)
                 .map(serializer::fromDocument);
     }
 
     @Override
-    public Mono<Void> save(final Item item) {
+    public Mono<Void> save(final Product product) {
         return mongoTemplate
-                .save(serializer.toDocument(item))
+                .save(serializer.toDocument(product))
                 .then();
     }
 
     @Override
-    public Mono<Boolean> deleteById(final String itemId) {
-        final Query query = new Query(new Criteria("id").is(itemId));
+    public Mono<Boolean> deleteById(final String productId) {
+        final Query query = new Query(new Criteria("id").is(productId));
 
         return mongoTemplate
-                .remove(query, ItemDocument.class)
+                .remove(query, ProductDocument.class)
                 .map(deleteResult -> deleteResult.getDeletedCount() > 0);
 
     }

@@ -1,15 +1,15 @@
 package com.raphaelcollin.inventorymanagement.infrastructure.mongodb.serializer;
 
-import com.raphaelcollin.inventorymanagement.domain.Item;
-import com.raphaelcollin.inventorymanagement.infrastructure.mongodb.document.ItemDocument;
+import com.raphaelcollin.inventorymanagement.domain.Product;
+import com.raphaelcollin.inventorymanagement.infrastructure.mongodb.document.ProductDocument;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ItemSerializer implements DocumentSerializer<Item, ItemDocument> {
+public class ProductSerializer implements DocumentSerializer<Product, ProductDocument> {
 
     @Override
-    public Item fromDocument(final ItemDocument document) {
-        return Item
+    public Product fromDocument(final ProductDocument document) {
+        return Product
                 .builder()
                 .id(document.getId())
                 .title(document.getTitle())
@@ -20,8 +20,8 @@ public class ItemSerializer implements DocumentSerializer<Item, ItemDocument> {
     }
 
     @Override
-    public ItemDocument toDocument(final Item domain) {
-        return new ItemDocument(
+    public ProductDocument toDocument(final Product domain) {
+        return new ProductDocument(
                 domain.getId(),
                 domain.getTitle(),
                 domain.getDescription(),

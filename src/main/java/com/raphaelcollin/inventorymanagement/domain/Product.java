@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 
 @Value
 @Builder(toBuilder = true)
-public class Item {
+public class Product {
     @NonNull
     String id;
     @NonNull

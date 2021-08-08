@@ -1,13 +1,13 @@
 package com.raphaelcollin.inventorymanagement.api.dto.in;
 
-import com.raphaelcollin.inventorymanagement.domain.ItemQuery;
+import com.raphaelcollin.inventorymanagement.domain.ProductQuery;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-class SearchItemsTest {
+class SearchProductsTest {
 
     @Nested
     @DisplayName("method: toDomain()")
@@ -27,14 +27,14 @@ class SearchItemsTest {
                 String expectedTitle,
                 int expectedMinQuantity) {
 
-            final ItemQuery expectedQuery = ItemQuery
+            final ProductQuery expectedQuery = ProductQuery
                     .builder()
                     .title(expectedTitle)
                     .minQuantity(expectedMinQuantity)
                     .build();
 
-            final SearchItems searchItems = new SearchItems(actualTitle, actualMinQuantity);
-            final ItemQuery actualQuery = searchItems.toDomain();
+            final SearchProducts searchProducts = new SearchProducts(actualTitle, actualMinQuantity);
+            final ProductQuery actualQuery = searchProducts.toDomain();
 
             Assertions.assertThat(actualQuery).isEqualTo(expectedQuery);
         }

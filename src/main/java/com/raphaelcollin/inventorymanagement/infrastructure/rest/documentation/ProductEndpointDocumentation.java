@@ -1,7 +1,7 @@
 package com.raphaelcollin.inventorymanagement.infrastructure.rest.documentation;
 
 
-import com.raphaelcollin.inventorymanagement.api.ItemApi;
+import com.raphaelcollin.inventorymanagement.api.ProductApi;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springdoc.core.annotations.RouterOperation;
 import org.springdoc.core.annotations.RouterOperations;
@@ -17,45 +17,45 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @RouterOperations({
         @RouterOperation(
-                path = "/api/v1/items",
+                path = "/api/v1/products",
                 method = RequestMethod.GET,
                 produces = MediaType.APPLICATION_JSON_VALUE,
-                operation = @Operation(operationId = "FetchAllItems", summary = "Fetch all stored Items", tags = "Items"),
-                beanClass = ItemApi.class,
-                beanMethod = "findItems"
+                operation = @Operation(operationId = "FetchAllProducts", summary = "Fetch all stored Products", tags = "Products"),
+                beanClass = ProductApi.class,
+                beanMethod = "findProducts"
         ),
         @RouterOperation(
-                path = "/api/v1/items/{itemId}",
+                path = "/api/v1/products/{productId}",
                 method = RequestMethod.GET,
                 produces = MediaType.APPLICATION_JSON_VALUE,
-                operation = @Operation(operationId = "FetchItemById", summary = "Fetch an Item by Id", tags = "Items"),
-                beanClass = ItemApi.class,
+                operation = @Operation(operationId = "FetchProductById", summary = "Fetch an Product by Id", tags = "Products"),
+                beanClass = ProductApi.class,
                 beanMethod = "findById"
         ),
         @RouterOperation(
-                path = "/api/v1/items",
+                path = "/api/v1/products",
                 method = RequestMethod.POST,
                 consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = MediaType.APPLICATION_JSON_VALUE,
-                operation = @Operation(operationId = "StoreItem", summary = "Store an Item", tags = "Items"),
-                beanClass = ItemApi.class, beanMethod = "save"
+                operation = @Operation(operationId = "StoreProduct", summary = "Store an Product", tags = "Products"),
+                beanClass = ProductApi.class, beanMethod = "save"
         ),
         @RouterOperation(
-                path = "/api/v1/items/{itemId}",
+                path = "/api/v1/products/{productId}",
                 method = RequestMethod.PATCH,
-                operation = @Operation(operationId = "UpdateItem", summary = "Update an existing Item", tags = "Items"),
+                operation = @Operation(operationId = "UpdateProduct", summary = "Update an existing Product", tags = "Products"),
                 consumes = MediaType.APPLICATION_JSON_VALUE,
-                beanClass = ItemApi.class,
+                beanClass = ProductApi.class,
                 beanMethod = "updateById"
         ),
         @RouterOperation(
-                path = "/api/v1/items/{itemId}",
+                path = "/api/v1/products/{productId}",
                 method = RequestMethod.DELETE,
                 produces = MediaType.APPLICATION_JSON_VALUE,
-                operation = @Operation(operationId = "DeleteItem", summary = "Delete an existing Item", tags = "Items"),
-                beanClass = ItemApi.class,
+                operation = @Operation(operationId = "DeleteProduct", summary = "Delete an existing Product", tags = "Products"),
+                beanClass = ProductApi.class,
                 beanMethod = "deleteById"
         )
 })
-public @interface ItemEndpointDocumentation {
+public @interface ProductEndpointDocumentation {
 }

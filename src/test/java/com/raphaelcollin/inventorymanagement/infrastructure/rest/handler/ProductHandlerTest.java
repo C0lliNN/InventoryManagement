@@ -1,15 +1,15 @@
 package com.raphaelcollin.inventorymanagement.infrastructure.rest.handler;
 
 import com.github.javafaker.Faker;
-import com.raphaelcollin.inventorymanagement.api.dto.in.CreateItem;
-import com.raphaelcollin.inventorymanagement.api.dto.in.UpdateItem;
-import com.raphaelcollin.inventorymanagement.domain.Item;
-import com.raphaelcollin.inventorymanagement.domain.ItemFactoryForTests;
-import com.raphaelcollin.inventorymanagement.domain.ItemQuery;
+import com.raphaelcollin.inventorymanagement.api.dto.in.CreateProduct;
+import com.raphaelcollin.inventorymanagement.api.dto.in.UpdateProduct;
+import com.raphaelcollin.inventorymanagement.domain.Product;
+import com.raphaelcollin.inventorymanagement.domain.ProductFactoryForTests;
+import com.raphaelcollin.inventorymanagement.domain.ProductQuery;
 import com.raphaelcollin.inventorymanagement.infrastructure.DatabaseTestAutoConfiguration;
-import com.raphaelcollin.inventorymanagement.infrastructure.mongodb.document.ItemDocument;
-import com.raphaelcollin.inventorymanagement.infrastructure.mongodb.repository.ReactiveMongoItemRepository;
-import com.raphaelcollin.inventorymanagement.infrastructure.mongodb.serializer.ItemSerializer;
+import com.raphaelcollin.inventorymanagement.infrastructure.mongodb.document.ProductDocument;
+import com.raphaelcollin.inventorymanagement.infrastructure.mongodb.repository.ReactiveMongoProductRepository;
+import com.raphaelcollin.inventorymanagement.infrastructure.mongodb.serializer.ProductSerializer;
 import com.raphaelcollin.inventorymanagement.utils.initializers.DatabaseContainerInitializer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,45 +41,45 @@ import static org.mockito.Mockito.doThrow;
 @ContextConfiguration(initializers = DatabaseContainerInitializer.class)
 @EnableAutoConfiguration
 @SpringBootTest(classes = {
-        ReactiveMongoItemRepository.class,
+        ReactiveMongoProductRepository.class,
         DatabaseTestAutoConfiguration.class,
-        ItemSerializer.class
+        ProductSerializer.class
 })
 @AutoConfigureWebTestClient
 @ComponentScan("com.raphaelcollin.inventorymanagement")
-class ItemHandlerTest {
+class ProductHandlerTest {
     @Autowired
     private WebTestClient client;
 
     @SpyBean
-    private ReactiveMongoItemRepository itemRepository;
+    private ReactiveMongoProductRepository productRepository;
 
     @Autowired
     private ReactiveMongoTemplate template;
 
-    private final Item item1 = ItemFactoryForTests.newItemDomain()
+    private final Product product1 = ProductFactoryForTests.newProductDomain()
             .toBuilder()
             .title("title1")
             .quantity(5)
             .build();
-    private final Item item2 = ItemFactoryForTests.newItemDomain()
+    private final Product product2 = ProductFactoryForTests.newProductDomain()
             .toBuilder()
             .title("title2")
             .quantity(10)
             .build();
-    private final Item item3 = ItemFactoryForTests.newItemDomain()
+    private final Product product3 = ProductFactoryForTests.newProductDomain()
             .toBuilder()
             .title("title3")
             .quantity(15)
             .build();
 
-    private static final String ROOT_URI = "/api/v1/items";
+    private static final String ROOT_URI = "/api/v1/products";
 
     @BeforeEach
     void setUp() {
-        itemRepository.save(item1).block();
-        itemRepository.save(item2).block();
-        itemRepository.save(item3).block();
+        productRepository.save(product1).block();
+        productRepository.save(product2).block();
+        productRepository.save(product3).block();
     }
 
     @AfterEach
@@ -88,40 +88,40 @@ class ItemHandlerTest {
     }
 
     @Nested
-    @DisplayName("method: findAllItems(SearchItems)")
-    class FindAllItemsMethod {
+    @DisplayName("method: findAllProducts(SearchProducts)")
+    class FindAllProductsMethod {
 
         @Test
-        @DisplayName("when called without query params, then it should return all the persisted items")
-        void whenCalledWithoutQueryParams_shouldReturnAllThePersistedItems() {
+        @DisplayName("when called without query params, then it should return all the persisted products")
+        void whenCalledWithoutQueryParams_shouldReturnAllThePersistedProducts() {
             client.get()
                     .uri(ROOT_URI)
                     .accept(MediaType.APPLICATION_JSON)
                     .exchange()
                     .expectStatus().isOk()
                     .expectBody()
-                    .jsonPath("$[0].id").value(is(item1.getId()))
-                    .jsonPath("$[0].title").value(is(item1.getTitle()))
-                    .jsonPath("$[0].description").value(is(item1.getDescription()))
-                    .jsonPath("$[0].price").value(is(item1.getPrice().intValue()))
-                    .jsonPath("$[0].quantity").value(is(item1.getQuantity()))
-                    .jsonPath("$[1].id").value(is(item2.getId()))
-                    .jsonPath("$[1].title").value(is(item2.getTitle()))
-                    .jsonPath("$[1].description").value(is(item2.getDescription()))
-                    .jsonPath("$[1].price").value(is(item2.getPrice().intValue()))
-                    .jsonPath("$[1].quantity").value(is(item2.getQuantity()))
-                    .jsonPath("$[2].id").value(is(item3.getId()))
-                    .jsonPath("$[2].title").value(is(item3.getTitle()))
-                    .jsonPath("$[2].description").value(is(item3.getDescription()))
-                    .jsonPath("$[2].price").value(is(item3.getPrice().intValue()))
-                    .jsonPath("$[2].quantity").value(is(item3.getQuantity()));
+                    .jsonPath("$[0].id").value(is(product1.getId()))
+                    .jsonPath("$[0].title").value(is(product1.getTitle()))
+                    .jsonPath("$[0].description").value(is(product1.getDescription()))
+                    .jsonPath("$[0].price").value(is(product1.getPrice().intValue()))
+                    .jsonPath("$[0].quantity").value(is(product1.getQuantity()))
+                    .jsonPath("$[1].id").value(is(product2.getId()))
+                    .jsonPath("$[1].title").value(is(product2.getTitle()))
+                    .jsonPath("$[1].description").value(is(product2.getDescription()))
+                    .jsonPath("$[1].price").value(is(product2.getPrice().intValue()))
+                    .jsonPath("$[1].quantity").value(is(product2.getQuantity()))
+                    .jsonPath("$[2].id").value(is(product3.getId()))
+                    .jsonPath("$[2].title").value(is(product3.getTitle()))
+                    .jsonPath("$[2].description").value(is(product3.getDescription()))
+                    .jsonPath("$[2].price").value(is(product3.getPrice().intValue()))
+                    .jsonPath("$[2].quantity").value(is(product3.getQuantity()));
         }
 
         @Test
-        @DisplayName("when called with title query param, then it should return only items matching it")
-        void whenCalledWithTitleQueryParam_shouldReturnOnlyItemsMatchingIt() {
+        @DisplayName("when called with title query param, then it should return only products matching it")
+        void whenCalledWithTitleQueryParam_shouldReturnOnlyProductsMatchingIt() {
             final String uri = UriComponentsBuilder.fromUriString(ROOT_URI)
-                    .queryParam("title", item1.getTitle())
+                    .queryParam("title", product1.getTitle())
                     .toUriString();
 
             client.get()
@@ -130,18 +130,18 @@ class ItemHandlerTest {
                     .exchange()
                     .expectStatus().isOk()
                     .expectBody()
-                    .jsonPath("$[0].id").value(is(item1.getId()))
-                    .jsonPath("$[0].title").value(is(item1.getTitle()))
-                    .jsonPath("$[0].description").value(is(item1.getDescription()))
-                    .jsonPath("$[0].price").value(is(item1.getPrice().intValue()))
-                    .jsonPath("$[0].quantity").value(is(item1.getQuantity()));
+                    .jsonPath("$[0].id").value(is(product1.getId()))
+                    .jsonPath("$[0].title").value(is(product1.getTitle()))
+                    .jsonPath("$[0].description").value(is(product1.getDescription()))
+                    .jsonPath("$[0].price").value(is(product1.getPrice().intValue()))
+                    .jsonPath("$[0].quantity").value(is(product1.getQuantity()));
         }
 
         @Test
-        @DisplayName("when called with minQuantity query param, then it should return only items matching it")
-        void whenCalledWithMinQuantityQueryParam_shouldReturnOnlyItemsMatchingIt() {
+        @DisplayName("when called with minQuantity query param, then it should return only products matching it")
+        void whenCalledWithMinQuantityQueryParam_shouldReturnOnlyProductsMatchingIt() {
             final String uri = UriComponentsBuilder.fromUriString(ROOT_URI)
-                    .queryParam("minQuantity", item2.getQuantity())
+                    .queryParam("minQuantity", product2.getQuantity())
                     .toUriString();
 
             client.get()
@@ -150,62 +150,62 @@ class ItemHandlerTest {
                     .exchange()
                     .expectStatus().isOk()
                     .expectBody()
-                    .jsonPath("$[0].id").value(is(item2.getId()))
-                    .jsonPath("$[0].title").value(is(item2.getTitle()))
-                    .jsonPath("$[0].description").value(is(item2.getDescription()))
-                    .jsonPath("$[0].price").value(is(item2.getPrice().intValue()))
-                    .jsonPath("$[0].quantity").value(is(item2.getQuantity()))
-                    .jsonPath("$[1].id").value(is(item3.getId()))
-                    .jsonPath("$[1].title").value(is(item3.getTitle()))
-                    .jsonPath("$[1].description").value(is(item3.getDescription()))
-                    .jsonPath("$[1].price").value(is(item3.getPrice().intValue()))
-                    .jsonPath("$[1].quantity").value(is(item3.getQuantity()));
+                    .jsonPath("$[0].id").value(is(product2.getId()))
+                    .jsonPath("$[0].title").value(is(product2.getTitle()))
+                    .jsonPath("$[0].description").value(is(product2.getDescription()))
+                    .jsonPath("$[0].price").value(is(product2.getPrice().intValue()))
+                    .jsonPath("$[0].quantity").value(is(product2.getQuantity()))
+                    .jsonPath("$[1].id").value(is(product3.getId()))
+                    .jsonPath("$[1].title").value(is(product3.getTitle()))
+                    .jsonPath("$[1].description").value(is(product3.getDescription()))
+                    .jsonPath("$[1].price").value(is(product3.getPrice().intValue()))
+                    .jsonPath("$[1].quantity").value(is(product3.getQuantity()));
         }
     }
 
     @Nested
-    @DisplayName("method: findItemById(String)")
-    class FindItemByIdMethod {
+    @DisplayName("method: findProductById(String)")
+    class FindProductByIdMethod {
 
         @Test
-        @DisplayName("when called with existing id, then it should return the matching item")
-        void whenCalledWithExistingId_shouldReturnTheMatchingItem() {
+        @DisplayName("when called with existing id, then it should return the matching product")
+        void whenCalledWithExistingId_shouldReturnTheMatchingProduct() {
             client.get()
-                    .uri(ROOT_URI + "/" + item1.getId())
+                    .uri(ROOT_URI + "/" + product1.getId())
                     .accept(MediaType.APPLICATION_JSON)
                     .exchange()
                     .expectStatus().isOk()
                     .expectBody()
-                    .jsonPath("$.id").value(is(item1.getId()))
-                    .jsonPath("$.title").value(is(item1.getTitle()))
-                    .jsonPath("$.description").value(is(item1.getDescription()))
-                    .jsonPath("$.price").value(is(item1.getPrice().intValue()))
-                    .jsonPath("$.quantity").value(is(item1.getQuantity()));
+                    .jsonPath("$.id").value(is(product1.getId()))
+                    .jsonPath("$.title").value(is(product1.getTitle()))
+                    .jsonPath("$.description").value(is(product1.getDescription()))
+                    .jsonPath("$.price").value(is(product1.getPrice().intValue()))
+                    .jsonPath("$.quantity").value(is(product1.getQuantity()));
         }
 
         @Test
         @DisplayName("when called with unknown id, then it should return 404 error")
         void whenCalledWithUnknownId_shouldReturn404Error() {
             client.get()
-                    .uri(ROOT_URI + "/itemId")
+                    .uri(ROOT_URI + "/productId")
                     .accept(MediaType.APPLICATION_JSON)
                     .exchange()
                     .expectStatus().isNotFound()
                     .expectBody()
-                    .jsonPath("$.message").value(is("Item with ID itemId was not found"))
+                    .jsonPath("$.message").value(is("Product with ID productId was not found"))
                     .jsonPath("$.details").isEmpty();
         }
     }
 
     @Nested
-    @DisplayName("method: saveItem(CreateItem)")
-    class SaveItemMethod {
+    @DisplayName("method: saveProduct(CreateProduct)")
+    class SaveProductMethod {
         private final Faker faker = Faker.instance();
 
         @Test
         @DisplayName("when called without title, then it should return 400 error")
         void whenCalledWithoutTitle_shouldReturn400Error() {
-            final CreateItem createItem = new CreateItem(
+            final CreateProduct createProduct = new CreateProduct(
                     null,
                     faker.lorem().sentence(),
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
@@ -215,7 +215,7 @@ class ItemHandlerTest {
             client.post()
                     .uri(ROOT_URI)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(createItem)
+                    .bodyValue(createProduct)
                     .accept(MediaType.APPLICATION_JSON)
                     .exchange()
                     .expectStatus().isBadRequest()
@@ -228,7 +228,7 @@ class ItemHandlerTest {
         @Test
         @DisplayName("when called with invalid title, then it should return 400 error")
         void whenCalledWithInvalidTitle_shouldReturn400Error() {
-            final CreateItem createItem = new CreateItem(
+            final CreateProduct createProduct = new CreateProduct(
                     faker.lorem().fixedString(155),
                     faker.lorem().sentence(),
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
@@ -238,7 +238,7 @@ class ItemHandlerTest {
             client.post()
                     .uri(ROOT_URI)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(createItem)
+                    .bodyValue(createProduct)
                     .accept(MediaType.APPLICATION_JSON)
                     .exchange()
                     .expectStatus().isBadRequest()
@@ -251,7 +251,7 @@ class ItemHandlerTest {
         @Test
         @DisplayName("when called without description, then it should return 400 error")
         void whenCalledWithoutDescription_shouldReturn400Error() {
-            final CreateItem createItem = new CreateItem(
+            final CreateProduct createProduct = new CreateProduct(
                     faker.lorem().characters(),
                     null,
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
@@ -261,7 +261,7 @@ class ItemHandlerTest {
             client.post()
                     .uri(ROOT_URI)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(createItem)
+                    .bodyValue(createProduct)
                     .accept(MediaType.APPLICATION_JSON)
                     .exchange()
                     .expectStatus().isBadRequest()
@@ -274,7 +274,7 @@ class ItemHandlerTest {
         @Test
         @DisplayName("when called with invalid description, then it should return 400 error")
         void whenCalledWithInvalidDescription_shouldReturn400Error() {
-            final CreateItem createItem = new CreateItem(
+            final CreateProduct createProduct = new CreateProduct(
                     faker.lorem().characters(),
                     faker.lorem().fixedString(1005),
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
@@ -284,7 +284,7 @@ class ItemHandlerTest {
             client.post()
                     .uri(ROOT_URI)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(createItem)
+                    .bodyValue(createProduct)
                     .accept(MediaType.APPLICATION_JSON)
                     .exchange()
                     .expectStatus().isBadRequest()
@@ -297,7 +297,7 @@ class ItemHandlerTest {
         @Test
         @DisplayName("when called without price, then it should return 400 error")
         void whenCalledWithoutPrice_shouldReturn400Error() {
-            final CreateItem createItem = new CreateItem(
+            final CreateProduct createProduct = new CreateProduct(
                     faker.lorem().characters(),
                     faker.lorem().sentence(),
                     null,
@@ -307,7 +307,7 @@ class ItemHandlerTest {
             client.post()
                     .uri(ROOT_URI)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(createItem)
+                    .bodyValue(createProduct)
                     .accept(MediaType.APPLICATION_JSON)
                     .exchange()
                     .expectStatus().isBadRequest()
@@ -321,7 +321,7 @@ class ItemHandlerTest {
         @ValueSource(doubles = {-29, -1, 0.0})
         @DisplayName("when called with invalid price, then it should return 400 error")
         void whenCalledWithInvalidPrice_shouldReturn400Error(double price) {
-            final CreateItem createItem = new CreateItem(
+            final CreateProduct createProduct = new CreateProduct(
                     faker.lorem().characters(),
                     faker.lorem().sentence(),
                     BigDecimal.valueOf(price),
@@ -331,7 +331,7 @@ class ItemHandlerTest {
             client.post()
                     .uri(ROOT_URI)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(createItem)
+                    .bodyValue(createProduct)
                     .accept(MediaType.APPLICATION_JSON)
                     .exchange()
                     .expectStatus().isBadRequest()
@@ -344,7 +344,7 @@ class ItemHandlerTest {
         @Test
         @DisplayName("when called without quantity, then it should return 400 error")
         void whenCalledWithoutQuantity_shouldReturn400Error() {
-            final CreateItem createItem = new CreateItem(
+            final CreateProduct createProduct = new CreateProduct(
                     faker.lorem().characters(),
                     faker.lorem().sentence(),
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
@@ -354,7 +354,7 @@ class ItemHandlerTest {
             client.post()
                     .uri(ROOT_URI)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(createItem)
+                    .bodyValue(createProduct)
                     .accept(MediaType.APPLICATION_JSON)
                     .exchange()
                     .expectStatus().isBadRequest()
@@ -367,7 +367,7 @@ class ItemHandlerTest {
         @Test
         @DisplayName("when called with invalid quantity, then it should return 400 error")
         void whenCalledWithInvalidQuantity_shouldReturn400Error() {
-            final CreateItem createItem = new CreateItem(
+            final CreateProduct createProduct = new CreateProduct(
                     faker.lorem().characters(),
                     faker.lorem().sentence(),
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
@@ -377,7 +377,7 @@ class ItemHandlerTest {
             client.post()
                     .uri(ROOT_URI)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(createItem)
+                    .bodyValue(createProduct)
                     .accept(MediaType.APPLICATION_JSON)
                     .exchange()
                     .expectStatus().isBadRequest()
@@ -388,25 +388,25 @@ class ItemHandlerTest {
         }
 
         @Test
-        @DisplayName("when called with valid payload, then it should return 201 and persist the item")
-        void whenCalledWithValidPayload_shouldReturn201AndPersistTheItem() {
-            final CreateItem createItem = ItemFactoryForTests.newCreateItemDto();
+        @DisplayName("when called with valid payload, then it should return 201 and persist the product")
+        void whenCalledWithValidPayload_shouldReturn201AndPersistTheProduct() {
+            final CreateProduct createProduct = ProductFactoryForTests.newCreateProductDto();
 
             client.post()
                     .uri(ROOT_URI)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(createItem)
+                    .bodyValue(createProduct)
                     .accept(MediaType.APPLICATION_JSON)
                     .exchange()
                     .expectStatus().isCreated()
                     .expectBody()
                     .jsonPath("$.id").isNotEmpty()
-                    .jsonPath("$.title").value(is(createItem.getTitle()))
-                    .jsonPath("$.description").value(is(createItem.getDescription()))
-                    .jsonPath("$.price").value(is(createItem.getPrice().intValue()))
-                    .jsonPath("$.quantity").value(is(createItem.getQuantity()));
+                    .jsonPath("$.title").value(is(createProduct.getTitle()))
+                    .jsonPath("$.description").value(is(createProduct.getDescription()))
+                    .jsonPath("$.price").value(is(createProduct.getPrice().intValue()))
+                    .jsonPath("$.quantity").value(is(createProduct.getQuantity()));
 
-            StepVerifier.create(itemRepository.findByQuery(ItemQuery.builder().build()))
+            StepVerifier.create(productRepository.findByQuery(ProductQuery.builder().build()))
                     .expectSubscription()
                     .expectNextCount(4)
                     .verifyComplete();
@@ -415,14 +415,14 @@ class ItemHandlerTest {
     }
 
     @Nested
-    @DisplayName("method: updateItemById(String, UpdateItem)")
-    class UpdateItemByIdMethod {
+    @DisplayName("method: updateProductById(String, UpdateProduct)")
+    class UpdateProductByIdMethod {
         final Faker faker = Faker.instance();
 
         @Test
         @DisplayName("when called with invalid title, then it should return 400 error")
         void whenCalledWithInvalidTitle_shouldReturn400Error() {
-            final UpdateItem updateItem = new UpdateItem(
+            final UpdateProduct updateProduct = new UpdateProduct(
                     faker.lorem().fixedString(151),
                     null,
                     null,
@@ -430,9 +430,9 @@ class ItemHandlerTest {
             );
 
             client.patch()
-                    .uri(ROOT_URI + "/" + item1.getId())
+                    .uri(ROOT_URI + "/" + product1.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(updateItem)
+                    .bodyValue(updateProduct)
                     .exchange()
                     .expectStatus().isBadRequest()
                     .expectBody()
@@ -446,7 +446,7 @@ class ItemHandlerTest {
         void whenCalledWithValidTitle_shouldReturn204AndUpdateIt() {
             final String newTitle = faker.lorem().sentence();
 
-            final UpdateItem updateItem = new UpdateItem(
+            final UpdateProduct updateProduct = new UpdateProduct(
                     newTitle,
                     null,
                     null,
@@ -454,25 +454,25 @@ class ItemHandlerTest {
             );
 
             client.patch()
-                    .uri(ROOT_URI + "/" + item1.getId())
+                    .uri(ROOT_URI + "/" + product1.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(updateItem)
+                    .bodyValue(updateProduct)
                     .exchange()
                     .expectStatus().isNoContent()
                     .expectBody().isEmpty();
 
-            final Item expectedItem = item1.toBuilder().title(newTitle).build();
+            final Product expectedProduct = product1.toBuilder().title(newTitle).build();
 
-            StepVerifier.create(itemRepository.findById(item1.getId()))
+            StepVerifier.create(productRepository.findById(product1.getId()))
                     .expectSubscription()
-                    .expectNext(expectedItem)
+                    .expectNext(expectedProduct)
                     .verifyComplete();
         }
 
         @Test
         @DisplayName("when called with invalid description, then it should return 400 error")
         void whenCalledWithInvalidDescription_shouldReturn400Error() {
-            final UpdateItem updateItem = new UpdateItem(
+            final UpdateProduct updateProduct = new UpdateProduct(
                     null,
                     faker.lorem().fixedString(1001),
                     null,
@@ -480,9 +480,9 @@ class ItemHandlerTest {
             );
 
             client.patch()
-                    .uri(ROOT_URI + "/" + item1.getId())
+                    .uri(ROOT_URI + "/" + product1.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(updateItem)
+                    .bodyValue(updateProduct)
                     .exchange()
                     .expectStatus().isBadRequest()
                     .expectBody()
@@ -496,7 +496,7 @@ class ItemHandlerTest {
         void whenCalledWithValidDescription_shouldReturn204AndUpdateIt() {
             final String newDescription = faker.lorem().sentence();
 
-            final UpdateItem updateItem = new UpdateItem(
+            final UpdateProduct updateProduct = new UpdateProduct(
                     null,
                     newDescription,
                     null,
@@ -504,18 +504,18 @@ class ItemHandlerTest {
             );
 
             client.patch()
-                    .uri(ROOT_URI + "/" + item1.getId())
+                    .uri(ROOT_URI + "/" + product1.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(updateItem)
+                    .bodyValue(updateProduct)
                     .exchange()
                     .expectStatus().isNoContent()
                     .expectBody().isEmpty();
 
-            final Item expectedItem = item1.toBuilder().description(newDescription).build();
+            final Product expectedProduct = product1.toBuilder().description(newDescription).build();
 
-            StepVerifier.create(itemRepository.findById(item1.getId()))
+            StepVerifier.create(productRepository.findById(product1.getId()))
                     .expectSubscription()
-                    .expectNext(expectedItem)
+                    .expectNext(expectedProduct)
                     .verifyComplete();
         }
 
@@ -523,7 +523,7 @@ class ItemHandlerTest {
         @ValueSource(doubles = {-23.8, -1.0, 0.0})
         @DisplayName("when called with invalid price, then it should return 400 error")
         void whenCalledWithInvalidPrice_shouldReturn400Error(double price) {
-            final UpdateItem updateItem = new UpdateItem(
+            final UpdateProduct updateProduct = new UpdateProduct(
                     null,
                     null,
                     BigDecimal.valueOf(price),
@@ -531,9 +531,9 @@ class ItemHandlerTest {
             );
 
             client.patch()
-                    .uri(ROOT_URI + "/" + item1.getId())
+                    .uri(ROOT_URI + "/" + product1.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(updateItem)
+                    .bodyValue(updateProduct)
                     .exchange()
                     .expectStatus().isBadRequest()
                     .expectBody()
@@ -547,7 +547,7 @@ class ItemHandlerTest {
         void whenCalledWithValidPrice_shouldReturn204AndUpdateIt() {
             final BigDecimal newPrice = BigDecimal.valueOf(faker.random().nextInt(1, 100));
 
-            final UpdateItem updateItem = new UpdateItem(
+            final UpdateProduct updateProduct = new UpdateProduct(
                     null,
                     null,
                     newPrice,
@@ -555,25 +555,25 @@ class ItemHandlerTest {
             );
 
             client.patch()
-                    .uri(ROOT_URI + "/" + item1.getId())
+                    .uri(ROOT_URI + "/" + product1.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(updateItem)
+                    .bodyValue(updateProduct)
                     .exchange()
                     .expectStatus().isNoContent()
                     .expectBody().isEmpty();
 
-            final Item expectedItem = item1.toBuilder().price(newPrice).build();
+            final Product expectedProduct = product1.toBuilder().price(newPrice).build();
 
-            StepVerifier.create(itemRepository.findById(item1.getId()))
+            StepVerifier.create(productRepository.findById(product1.getId()))
                     .expectSubscription()
-                    .expectNext(expectedItem)
+                    .expectNext(expectedProduct)
                     .verifyComplete();
         }
 
         @Test
         @DisplayName("when called with invalid quantity, then it should return 400 error")
         void whenCalledWithInvalidQuantity_shouldReturn400Error() {
-            final UpdateItem updateItem = new UpdateItem(
+            final UpdateProduct updateProduct = new UpdateProduct(
                     null,
                     null,
                     null,
@@ -581,9 +581,9 @@ class ItemHandlerTest {
             );
 
             client.patch()
-                    .uri(ROOT_URI + "/" + item1.getId())
+                    .uri(ROOT_URI + "/" + product1.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(updateItem)
+                    .bodyValue(updateProduct)
                     .exchange()
                     .expectStatus().isBadRequest()
                     .expectBody()
@@ -597,7 +597,7 @@ class ItemHandlerTest {
         void whenCalledWithValidQuantity_shouldReturn204AndUpdateIt() {
             final int newQuantity = faker.random().nextInt(1, 100);
 
-            final UpdateItem updateItem = new UpdateItem(
+            final UpdateProduct updateProduct = new UpdateProduct(
                     null,
                     null,
                     null,
@@ -605,25 +605,25 @@ class ItemHandlerTest {
             );
 
             client.patch()
-                    .uri(ROOT_URI + "/" + item1.getId())
+                    .uri(ROOT_URI + "/" + product1.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(updateItem)
+                    .bodyValue(updateProduct)
                     .exchange()
                     .expectStatus().isNoContent()
                     .expectBody().isEmpty();
 
-            final Item expectedItem = item1.toBuilder().quantity(newQuantity).build();
+            final Product expectedProduct = product1.toBuilder().quantity(newQuantity).build();
 
-            StepVerifier.create(itemRepository.findById(item1.getId()))
+            StepVerifier.create(productRepository.findById(product1.getId()))
                     .expectSubscription()
-                    .expectNext(expectedItem)
+                    .expectNext(expectedProduct)
                     .verifyComplete();
         }
 
         @Test
         @DisplayName("when called with multiple invalid fields, then it should return 400")
         void whenCalledWithMultipleInvalidFields_shouldReturn400() {
-            final UpdateItem updateItem = new UpdateItem(
+            final UpdateProduct updateProduct = new UpdateProduct(
                     faker.lorem().fixedString(151),
                     faker.lorem().fixedString(1051),
                     null,
@@ -631,9 +631,9 @@ class ItemHandlerTest {
             );
 
             client.patch()
-                    .uri(ROOT_URI + "/" + item1.getId())
+                    .uri(ROOT_URI + "/" + product1.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(updateItem)
+                    .bodyValue(updateProduct)
                     .exchange()
                     .expectStatus().isBadRequest()
                     .expectBody()
@@ -652,7 +652,7 @@ class ItemHandlerTest {
             final String newTitle = faker.lorem().sentence();
             final int newQuantity = faker.random().nextInt(1, 100);
 
-            final UpdateItem updateItem = new UpdateItem(
+            final UpdateProduct updateProduct = new UpdateProduct(
                     newTitle,
                     null,
                     null,
@@ -660,18 +660,18 @@ class ItemHandlerTest {
             );
 
             client.patch()
-                    .uri(ROOT_URI + "/" + item1.getId())
+                    .uri(ROOT_URI + "/" + product1.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(updateItem)
+                    .bodyValue(updateProduct)
                     .exchange()
                     .expectStatus().isNoContent()
                     .expectBody().isEmpty();
 
-            final Item expectedItem = item1.toBuilder().title(newTitle).quantity(newQuantity).build();
+            final Product expectedProduct = product1.toBuilder().title(newTitle).quantity(newQuantity).build();
 
-            StepVerifier.create(itemRepository.findById(item1.getId()))
+            StepVerifier.create(productRepository.findById(product1.getId()))
                     .expectSubscription()
-                    .expectNext(expectedItem)
+                    .expectNext(expectedProduct)
                     .verifyComplete();
         }
 
@@ -679,10 +679,10 @@ class ItemHandlerTest {
         @DisplayName("when some unexpected error is throw, then it should return 500")
         void when() {
             doThrow(RuntimeException.class)
-                    .when(itemRepository)
-                    .findById(item1.getId());
+                    .when(productRepository)
+                    .findById(product1.getId());
 
-            final UpdateItem updateItem = new UpdateItem(
+            final UpdateProduct updateProduct = new UpdateProduct(
                     null,
                     null,
                     null,
@@ -690,9 +690,9 @@ class ItemHandlerTest {
             );
 
             client.patch()
-                    .uri(ROOT_URI + "/" + item1.getId())
+                    .uri(ROOT_URI + "/" + product1.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(updateItem)
+                    .bodyValue(updateProduct)
                     .exchange()
                     .expectStatus().is5xxServerError()
                     .expectBody()
@@ -702,8 +702,8 @@ class ItemHandlerTest {
     }
 
     @Nested
-    @DisplayName("method: deleteItemById(String)")
-    class DeleteItemByIdMethod {
+    @DisplayName("method: deleteProductById(String)")
+    class DeleteProductByIdMethod {
 
         @Test
         @DisplayName("when called with unknown id, then it should return 404 error")
@@ -715,26 +715,26 @@ class ItemHandlerTest {
                     .exchange()
                     .expectStatus().isNotFound()
                     .expectBody()
-                    .jsonPath("$.message").value(is(format("Item with ID %s was not found", unknownId)))
+                    .jsonPath("$.message").value(is(format("Product with ID %s was not found", unknownId)))
                     .jsonPath("$.details").isEmpty();
         }
 
         @Test
-        @DisplayName("when called with existing id, then it should return 204 and delete the item in the db")
-        void whenCalledWithExistingId_shouldReturn204AndDeleteTheItemInTheDB() {
+        @DisplayName("when called with existing id, then it should return 204 and delete the product in the db")
+        void whenCalledWithExistingId_shouldReturn204AndDeleteTheProductInTheDB() {
             client.delete()
-                    .uri(ROOT_URI + "/" + item1.getId())
+                    .uri(ROOT_URI + "/" + product1.getId())
                     .exchange()
                     .expectStatus().isNoContent()
                     .expectBody().isEmpty();
 
-            StepVerifier.create(itemRepository.findById(item1.getId()))
+            StepVerifier.create(productRepository.findById(product1.getId()))
                     .expectSubscription()
                     .verifyComplete();
         }
     }
 
     private void cleanCollection() {
-        template.dropCollection(ItemDocument.class).block();
+        template.dropCollection(ProductDocument.class).block();
     }
 }
