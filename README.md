@@ -1,6 +1,6 @@
-# Item Inventory
+# Inventory Management
 
-A Non-Blocking REST API developed in Java 11, Spring Boot 2 and Spring WebFlux to manage the Item Inventory of an Industry.
+A Non-Blocking REST API developed in Java 11, Spring Boot 2 and Spring WebFlux to manage the Inventory of an Industry.
 
 ## Tools & Libraries
 

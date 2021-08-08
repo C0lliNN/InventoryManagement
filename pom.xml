@@ -8,11 +8,11 @@
         <version>2.4.6</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>raphael</groupId>
-    <artifactId>Item-Inventory</artifactId>
+    <groupId>com.raphaelcollin</groupId>
+    <artifactId>Inventory-Management</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Item Inventory</name>
-    <description>A Non-Blocking REST API developed in Java 11 + Spring Boot 2 to manage the Item Inventory of an Industry.</description>
+    <name>Inventory Management</name>
+    <description>A Non-Blocking REST API developed in Java 11 + Spring Boot 2 to manage the Inventory of an Industry.</description>
     <properties>
         <java.version>11</java.version>
         <archunit.version>0.14.1</archunit.version>
@@ -129,7 +129,7 @@
                 <version>${jacoco.version}</version>
                 <configuration>
                     <excludes>
-                        <exclude>com/raphaelcollin/iteminventory/infrastructure/**Application.*</exclude>
+                        <exclude>com/raphaelcollin/inventorymanagement/infrastructure/**Application.*</exclude>
                     </excludes>
                 </configuration>
                 <executions>
