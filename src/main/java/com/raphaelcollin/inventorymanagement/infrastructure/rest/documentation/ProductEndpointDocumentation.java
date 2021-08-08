@@ -1,7 +1,7 @@
 package com.raphaelcollin.inventorymanagement.infrastructure.rest.documentation;
 
 
-import com.raphaelcollin.inventorymanagement.api.ProductApi;
+import com.raphaelcollin.inventorymanagement.api.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springdoc.core.annotations.RouterOperation;
 import org.springdoc.core.annotations.RouterOperations;
@@ -21,7 +21,7 @@ import java.lang.annotation.Target;
                 method = RequestMethod.GET,
                 produces = MediaType.APPLICATION_JSON_VALUE,
                 operation = @Operation(operationId = "FetchAllProducts", summary = "Fetch all stored Products", tags = "Products"),
-                beanClass = ProductApi.class,
+                beanClass = ProductService.class,
                 beanMethod = "findProducts"
         ),
         @RouterOperation(
@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
                 method = RequestMethod.GET,
                 produces = MediaType.APPLICATION_JSON_VALUE,
                 operation = @Operation(operationId = "FetchProductById", summary = "Fetch an Product by Id", tags = "Products"),
-                beanClass = ProductApi.class,
+                beanClass = ProductService.class,
                 beanMethod = "findById"
         ),
         @RouterOperation(
@@ -38,14 +38,14 @@ import java.lang.annotation.Target;
                 consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = MediaType.APPLICATION_JSON_VALUE,
                 operation = @Operation(operationId = "StoreProduct", summary = "Store an Product", tags = "Products"),
-                beanClass = ProductApi.class, beanMethod = "save"
+                beanClass = ProductService.class, beanMethod = "save"
         ),
         @RouterOperation(
                 path = "/api/v1/products/{productId}",
                 method = RequestMethod.PATCH,
                 operation = @Operation(operationId = "UpdateProduct", summary = "Update an existing Product", tags = "Products"),
                 consumes = MediaType.APPLICATION_JSON_VALUE,
-                beanClass = ProductApi.class,
+                beanClass = ProductService.class,
                 beanMethod = "updateById"
         ),
         @RouterOperation(
@@ -53,7 +53,7 @@ import java.lang.annotation.Target;
                 method = RequestMethod.DELETE,
                 produces = MediaType.APPLICATION_JSON_VALUE,
                 operation = @Operation(operationId = "DeleteProduct", summary = "Delete an existing Product", tags = "Products"),
-                beanClass = ProductApi.class,
+                beanClass = ProductService.class,
                 beanMethod = "deleteById"
         )
 })

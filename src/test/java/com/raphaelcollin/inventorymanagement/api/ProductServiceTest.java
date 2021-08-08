@@ -7,7 +7,7 @@ import com.raphaelcollin.inventorymanagement.api.validation.RequestValidator;
 import com.raphaelcollin.inventorymanagement.domain.Product;
 import com.raphaelcollin.inventorymanagement.domain.ProductFactoryForTests;
 import com.raphaelcollin.inventorymanagement.domain.ProductQuery;
-import com.raphaelcollin.inventorymanagement.domain.ProductService;
+import com.raphaelcollin.inventorymanagement.domain.ProductRepository;
 import com.raphaelcollin.inventorymanagement.domain.common.IdGenerator;
 import com.raphaelcollin.inventorymanagement.domain.exceptions.RequestValidationException;
 import org.junit.jupiter.api.AfterEach;
@@ -33,13 +33,13 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class ProductApiTest {
+class ProductServiceTest {
 
     @InjectMocks
-    private ProductApi productApi;
+    private ProductService productService;
 
     @Mock
-    private ProductService productService;
+    private ProductRepository productRepository;
 
     @Mock
     private IdGenerator idGenerator;
@@ -59,13 +59,13 @@ class ProductApiTest {
 
         @BeforeEach
         void setUp() {
-            when(productService.findByQuery(productQuery)).thenReturn(Flux.just(product1, product2, product3));
+            when(productRepository.findByQuery(productQuery)).thenReturn(Flux.just(product1, product2, product3));
         }
 
         @AfterEach
         void tearDown() {
-            verify(productService).findByQuery(productQuery);
-            verifyNoMoreInteractions(productService);
+            verify(productRepository).findByQuery(productQuery);
+            verifyNoMoreInteractions(productRepository);
 
             verifyNoInteractions(idGenerator, requestValidator);
         }
@@ -73,7 +73,7 @@ class ProductApiTest {
         @Test
         @DisplayName("when called, then it should forward the call to the underlying service and convert the result to dto")
         void whenCalled_shouldForwardTheCallToTheUnderlyingServiceAndConvertTheResultDto() {
-            StepVerifier.create(productApi.findProducts(searchProducts))
+            StepVerifier.create(productService.findProducts(searchProducts))
                     .expectSubscription()
                     .expectNext(com.raphaelcollin.inventorymanagement.api.dto.out.Product.fromDomain(product1))
                     .expectNext(com.raphaelcollin.inventorymanagement.api.dto.out.Product.fromDomain(product2))
@@ -89,21 +89,21 @@ class ProductApiTest {
 
         @BeforeEach
         void setUp() {
-            when(productService.findById(product1.getId())).thenReturn(Mono.just(product1));
+            when(productRepository.findById(product1.getId())).thenReturn(Mono.just(product1));
         }
 
         @AfterEach
         void tearDown() {
-            verify(productService).findById(product1.getId());
+            verify(productRepository).findById(product1.getId());
 
-            verifyNoMoreInteractions(productService);
+            verifyNoMoreInteractions(productRepository);
             verifyNoInteractions(requestValidator, idGenerator);
         }
 
         @Test
         @DisplayName("when called, then it should forward the call to the underlying service")
         void whenCalled_shouldForwardTheCallToTheUnderlyingServiceAndConvertTheResultDto() {
-            StepVerifier.create(productApi.findById(product1.getId()))
+            StepVerifier.create(productService.findById(product1.getId()))
                     .expectSubscription()
                     .expectNext(com.raphaelcollin.inventorymanagement.api.dto.out.Product.fromDomain(product1))
                     .verifyComplete();
@@ -131,17 +131,17 @@ class ProductApiTest {
         @DisplayName("when called, then it should forward the call to the underlying service")
         void whenCalled_shouldForwardTheCallToTheUnderlyingService() {
             when(requestValidator.validate(createProduct)).thenReturn(Mono.just(createProduct));
-            when(productService.save(product)).thenReturn(Mono.just(product));
+            when(productRepository.save(product)).thenReturn(Mono.empty());
             when(idGenerator.newId()).thenReturn(product.getId());
 
-            StepVerifier.create(productApi.save(createProduct))
+            StepVerifier.create(productService.save(createProduct))
                     .expectSubscription()
                     .expectNext(com.raphaelcollin.inventorymanagement.api.dto.out.Product.fromDomain(product))
                     .verifyComplete();
 
-            verify(productService).save(product);
+            verify(productRepository).save(product);
             verify(idGenerator).newId();
-            verifyNoMoreInteractions(requestValidator, idGenerator, productService);
+            verifyNoMoreInteractions(requestValidator, idGenerator, productRepository);
         }
 
         @Test
@@ -149,7 +149,7 @@ class ProductApiTest {
         void whenValidationFails_shouldThrowAnError() {
             when(requestValidator.validate(createProduct)).thenReturn(Mono.error(new RequestValidationException(emptyList())));
 
-            StepVerifier.create(productApi.save(createProduct))
+            StepVerifier.create(productService.save(createProduct))
                     .expectSubscription()
                     .expectErrorSatisfies(error -> assertThat(error)
                             .isInstanceOf(RequestValidationException.class)
@@ -157,7 +157,7 @@ class ProductApiTest {
                     .verify();
 
             verifyNoMoreInteractions(requestValidator);
-            verifyNoInteractions(idGenerator, productService);
+            verifyNoInteractions(idGenerator, productRepository);
         }
     }
 
@@ -179,16 +179,16 @@ class ProductApiTest {
         @DisplayName("when called, then it should forward the calls to the underlying services")
         void whenCalled_shouldForwardTheCallsToTheUnderlyingServices() {
             when(requestValidator.validate(updateProduct)).thenReturn(Mono.just(updateProduct));
-            when(productService.findById(existingProduct.getId())).thenReturn(Mono.just(existingProduct));
-            when(productService.save(newProduct)).thenReturn(Mono.just(newProduct));
+            when(productRepository.findById(existingProduct.getId())).thenReturn(Mono.just(existingProduct));
+            when(productRepository.save(newProduct)).thenReturn(Mono.empty());
 
-            StepVerifier.create(productApi.updateById(existingProduct.getId(), updateProduct))
+            StepVerifier.create(productService.updateById(existingProduct.getId(), updateProduct))
                     .expectSubscription()
                     .verifyComplete();
 
-            verify(productService).findById(existingProduct.getId());
-            verify(productService).save(newProduct);
-            verifyNoMoreInteractions(productService);
+            verify(productRepository).findById(existingProduct.getId());
+            verify(productRepository).save(newProduct);
+            verifyNoMoreInteractions(productRepository);
         }
 
         @Test
@@ -196,7 +196,7 @@ class ProductApiTest {
         void whenValidatorFails_shouldThrowAnError() {
             when(requestValidator.validate(updateProduct)).thenReturn(Mono.error(new RequestValidationException(emptyList())));
 
-            StepVerifier.create(productApi.updateById(existingProduct.getId(), updateProduct))
+            StepVerifier.create(productService.updateById(existingProduct.getId(), updateProduct))
                     .expectSubscription()
                     .expectErrorSatisfies(error -> assertThat(error)
                             .isInstanceOf(RequestValidationException.class).hasMessage("[]"))
@@ -226,7 +226,7 @@ class ProductApiTest {
         @Test
         @DisplayName("when called, then it should forward the call to the underlying service")
         void whenCalled_shouldForwardTheCallToTheUnderlyingService() {
-            productApi.deleteById(productId).block();
+            productService.deleteById(productId).block();
         }
     }
 }

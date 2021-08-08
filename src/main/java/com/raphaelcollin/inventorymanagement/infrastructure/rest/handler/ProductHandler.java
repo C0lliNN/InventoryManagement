@@ -1,6 +1,6 @@
 package com.raphaelcollin.inventorymanagement.infrastructure.rest.handler;
 
-import com.raphaelcollin.inventorymanagement.api.ProductApi;
+import com.raphaelcollin.inventorymanagement.api.ProductService;
 import com.raphaelcollin.inventorymanagement.api.dto.in.CreateProduct;
 import com.raphaelcollin.inventorymanagement.api.dto.in.SearchProducts;
 import com.raphaelcollin.inventorymanagement.api.dto.in.UpdateProduct;
@@ -18,7 +18,7 @@ import java.util.function.Function;
 @Component
 @AllArgsConstructor
 public class ProductHandler {
-    private final ProductApi productApi;
+    private final ProductService productApi;
 
     public @NonNull Mono<ServerResponse> findAllProducts(ServerRequest request) {
         final Function<SearchProducts, Mono<ServerResponse>> responseBuilder = searchProducts -> ServerResponse
