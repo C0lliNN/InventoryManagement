@@ -9,6 +9,7 @@ import com.raphaelcollin.inventorymanagement.domain.ProductFactoryForTests;
 import com.raphaelcollin.inventorymanagement.domain.ProductQuery;
 import com.raphaelcollin.inventorymanagement.domain.ProductRepository;
 import com.raphaelcollin.inventorymanagement.domain.common.IdGenerator;
+import com.raphaelcollin.inventorymanagement.domain.exceptions.EntityNotFoundException;
 import com.raphaelcollin.inventorymanagement.domain.exceptions.RequestValidationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -71,8 +72,8 @@ class ProductServiceTest {
         }
 
         @Test
-        @DisplayName("when called, then it should forward the call to the underlying service and convert the result to dto")
-        void whenCalled_shouldForwardTheCallToTheUnderlyingServiceAndConvertTheResultDto() {
+        @DisplayName("when called, then it should forward the call to the underlying repository and convert the result to dto")
+        void whenCalled_shouldForwardTheCallToTheUnderlyingRepositoryAndConvertTheResultDto() {
             StepVerifier.create(productService.findProducts(searchProducts))
                     .expectSubscription()
                     .expectNext(com.raphaelcollin.inventorymanagement.api.dto.out.Product.fromDomain(product1))
@@ -85,27 +86,37 @@ class ProductServiceTest {
     @Nested
     @DisplayName("method: findById(String)")
     class FindByIdMethod {
-        private final Product product1 = ProductFactoryForTests.newProductDomain();
-
-        @BeforeEach
-        void setUp() {
-            when(productRepository.findById(product1.getId())).thenReturn(Mono.just(product1));
-        }
+        private final Product product = ProductFactoryForTests.newProductDomain();
 
         @AfterEach
         void tearDown() {
-            verify(productRepository).findById(product1.getId());
+            verify(productRepository).findById(product.getId());
 
             verifyNoMoreInteractions(productRepository);
             verifyNoInteractions(requestValidator, idGenerator);
         }
 
         @Test
-        @DisplayName("when called, then it should forward the call to the underlying service")
-        void whenCalled_shouldForwardTheCallToTheUnderlyingServiceAndConvertTheResultDto() {
-            StepVerifier.create(productService.findById(product1.getId()))
+        @DisplayName("when product is not found, then it should return an error")
+        void whenProductIsNotFound_shouldReturnAnError() {
+            when(productRepository.findById(product.getId())).thenReturn(Mono.empty());
+
+            StepVerifier.create(productService.findById(product.getId()))
                     .expectSubscription()
-                    .expectNext(com.raphaelcollin.inventorymanagement.api.dto.out.Product.fromDomain(product1))
+                    .verifyErrorSatisfies(error -> assertThat(error)
+                            .isInstanceOf(EntityNotFoundException.class)
+                            .hasMessage("Product with ID %s was not found", product.getId())
+                    );
+        }
+
+        @Test
+        @DisplayName("when product is found, then it should convert it to dto")
+        void whenProductIsFound_shouldConvertItToDto() {
+            when(productRepository.findById(product.getId())).thenReturn(Mono.just(product));
+
+            StepVerifier.create(productService.findById(product.getId()))
+                    .expectSubscription()
+                    .expectNext(com.raphaelcollin.inventorymanagement.api.dto.out.Product.fromDomain(product))
                     .verifyComplete();
         }
     }
@@ -114,13 +125,7 @@ class ProductServiceTest {
     @DisplayName("method: save(CreateProduct)")
     class SaveMethod {
         private final CreateProduct createProduct = ProductFactoryForTests.newCreateProductDto();
-        private Product product;
-
-        @BeforeEach
-        void setUp() {
-            final String productId = UUID.randomUUID().toString();
-            this.product = createProduct.toDomain(productId);
-        }
+        private final Product product = createProduct.toDomain(UUID.randomUUID().toString());
 
         @AfterEach
         void tearDown() {
@@ -128,8 +133,8 @@ class ProductServiceTest {
         }
 
         @Test
-        @DisplayName("when called, then it should forward the call to the underlying service")
-        void whenCalled_shouldForwardTheCallToTheUnderlyingService() {
+        @DisplayName("when the product is created successfully, then it should return the dto representation of it")
+        void whenTheProductIsCreatedSuccessfully_shouldReturnTheDtoRepresentationOfIt() {
             when(requestValidator.validate(createProduct)).thenReturn(Mono.just(createProduct));
             when(productRepository.save(product)).thenReturn(Mono.empty());
             when(idGenerator.newId()).thenReturn(product.getId());
@@ -145,8 +150,8 @@ class ProductServiceTest {
         }
 
         @Test
-        @DisplayName("when validation fails, then it should throw an error")
-        void whenValidationFails_shouldThrowAnError() {
+        @DisplayName("when validation fails, then it should return an error")
+        void whenValidationFails_shouldReturnAnError() {
             when(requestValidator.validate(createProduct)).thenReturn(Mono.error(new RequestValidationException(emptyList())));
 
             StepVerifier.create(productService.save(createProduct))
@@ -176,8 +181,8 @@ class ProductServiceTest {
         }
 
         @Test
-        @DisplayName("when called, then it should forward the calls to the underlying services")
-        void whenCalled_shouldForwardTheCallsToTheUnderlyingServices() {
+        @DisplayName("when the update succeed, then it should return an empty Mono")
+        void whenTheUpdateSucceed_shouldReturnAnEmptyMono() {
             when(requestValidator.validate(updateProduct)).thenReturn(Mono.just(updateProduct));
             when(productRepository.findById(existingProduct.getId())).thenReturn(Mono.just(existingProduct));
             when(productRepository.save(newProduct)).thenReturn(Mono.empty());
@@ -192,8 +197,8 @@ class ProductServiceTest {
         }
 
         @Test
-        @DisplayName("when validator fails, then it should throw an error")
-        void whenValidatorFails_shouldThrowAnError() {
+        @DisplayName("when validator fails, then it should return an error")
+        void whenValidatorFails_shouldReturnAnError() {
             when(requestValidator.validate(updateProduct)).thenReturn(Mono.error(new RequestValidationException(emptyList())));
 
             StepVerifier.create(productService.updateById(existingProduct.getId(), updateProduct))
@@ -202,7 +207,28 @@ class ProductServiceTest {
                             .isInstanceOf(RequestValidationException.class).hasMessage("[]"))
                     .verify();
 
-            verifyNoInteractions(productService);
+            verify(requestValidator).validate(updateProduct);
+            verifyNoMoreInteractions(requestValidator);
+            verifyNoInteractions(productRepository);
+        }
+
+        @Test
+        @DisplayName("when product is not found, then it should return an error")
+        void whenProductIsNotFound_shouldReturnAnError() {
+            when(requestValidator.validate(updateProduct)).thenReturn(Mono.just(updateProduct));
+            when(productRepository.findById(existingProduct.getId())).thenReturn(Mono.empty());
+
+            StepVerifier.create(productService.updateById(existingProduct.getId(), updateProduct))
+                    .expectSubscription()
+                    .expectErrorSatisfies(error -> assertThat(error)
+                            .isInstanceOf(EntityNotFoundException.class)
+                            .hasMessage("Product with ID %s was not found", existingProduct.getId()))
+                    .verify();
+
+            verify(requestValidator).validate(updateProduct);
+            verify(productRepository).findById(existingProduct.getId());
+
+            verifyNoMoreInteractions(requestValidator, productRepository);
         }
     }
 
@@ -211,22 +237,34 @@ class ProductServiceTest {
     class DeleteByIdMethod {
         private final String productId = UUID.randomUUID().toString();
 
-        @BeforeEach
-        void setUp() {
-            when(productService.deleteById(productId)).thenReturn(Mono.empty());
-        }
-
         @AfterEach
         void tearDown() {
-            verify(productService).deleteById(productId);
+            verify(productRepository).deleteById(productId);
             verifyNoInteractions(idGenerator, requestValidator);
-            verifyNoMoreInteractions(productService);
+            verifyNoMoreInteractions(productRepository);
         }
 
         @Test
-        @DisplayName("when called, then it should forward the call to the underlying service")
-        void whenCalled_shouldForwardTheCallToTheUnderlyingService() {
-            productService.deleteById(productId).block();
+        @DisplayName("when the delete fails, then it should return an error")
+        void whenTheDeleteFails_shouldReturnAnError() {
+            when(productRepository.deleteById(productId)).thenReturn(Mono.just(false));
+
+            StepVerifier.create(productService.deleteById(productId))
+                    .expectSubscription()
+                    .verifyErrorSatisfies(error -> assertThat(error)
+                            .isInstanceOf(EntityNotFoundException.class)
+                            .hasMessage("Product with ID %s was not found", productId)
+                    );
+        }
+
+        @Test
+        @DisplayName("when the delete succeed, then it should return an empty Mono")
+        void whenTheDeleteSucceed_shouldReturnAnEmptyMono() {
+            when(productRepository.deleteById(productId)).thenReturn(Mono.just(true));
+
+            StepVerifier.create(productService.deleteById(productId))
+                    .expectSubscription()
+                    .verifyComplete();
         }
     }
 }
