@@ -19,5 +19,6 @@ public class ProductDocument {
     private String title;
     private String description;
     private BigDecimal price;
-    private int quantity;
+    private Integer quantity;
+    private String imageIdentifier;
 }

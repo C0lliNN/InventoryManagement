@@ -28,6 +28,10 @@ public class CreateProduct {
     @NotNull(message = "the field is mandatory")
     Integer quantity;
 
+    @NotBlank(message = "the field is mandatory")
+    @Size(max = 36, message = "the field must not exceed {max} characters")
+    String imageIdentifier;
+
     public Product toDomain(final String productId) {
         return Product
                 .builder()
@@ -36,6 +40,7 @@ public class CreateProduct {
                 .description(description)
                 .price(price)
                 .quantity(quantity)
+                .imageIdentifier(imageIdentifier)
                 .build();
     }
 }

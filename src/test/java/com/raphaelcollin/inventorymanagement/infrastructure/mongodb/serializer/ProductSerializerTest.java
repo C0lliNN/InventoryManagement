@@ -35,6 +35,7 @@ class ProductSerializerTest {
                     .description(document.getDescription())
                     .price(document.getPrice())
                     .quantity(document.getQuantity())
+                    .imageIdentifier(document.getImageIdentifier())
                     .build();
         }
     }
@@ -60,7 +61,8 @@ class ProductSerializerTest {
                     domain.getTitle(),
                     domain.getDescription(),
                     domain.getPrice(),
-                    domain.getQuantity()
+                    domain.getQuantity(),
+                    domain.getImageIdentifier()
             );
         }
     }

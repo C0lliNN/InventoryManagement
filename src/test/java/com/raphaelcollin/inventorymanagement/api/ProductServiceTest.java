@@ -11,6 +11,9 @@ import com.raphaelcollin.inventorymanagement.domain.ProductRepository;
 import com.raphaelcollin.inventorymanagement.domain.common.IdGenerator;
 import com.raphaelcollin.inventorymanagement.domain.exceptions.EntityNotFoundException;
 import com.raphaelcollin.inventorymanagement.domain.exceptions.RequestValidationException;
+import com.raphaelcollin.inventorymanagement.domain.storage.Image;
+import com.raphaelcollin.inventorymanagement.domain.storage.ImageFactoryForTests;
+import com.raphaelcollin.inventorymanagement.domain.storage.ImageStorageClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -43,6 +46,9 @@ class ProductServiceTest {
     private ProductRepository productRepository;
 
     @Mock
+    private ImageStorageClient imageStorageClient;
+
+    @Mock
     private IdGenerator idGenerator;
 
     @Mock
@@ -58,16 +64,26 @@ class ProductServiceTest {
         private final Product product2 = ProductFactoryForTests.newProductDomain();
         private final Product product3 = ProductFactoryForTests.newProductDomain();
 
+        private final Image image1 = ImageFactoryForTests.newImageDomain();
+        private final Image image2 = ImageFactoryForTests.newImageDomain();
+        private final Image image3 = ImageFactoryForTests.newImageDomain();
+
         @BeforeEach
         void setUp() {
             when(productRepository.findByQuery(productQuery)).thenReturn(Flux.just(product1, product2, product3));
+            when(imageStorageClient.generatePreSignedUrlForVisualization(product1.getImageIdentifier())).thenReturn(Mono.just(image1));
+            when(imageStorageClient.generatePreSignedUrlForVisualization(product2.getImageIdentifier())).thenReturn(Mono.just(image2));
+            when(imageStorageClient.generatePreSignedUrlForVisualization(product3.getImageIdentifier())).thenReturn(Mono.just(image3));
         }
 
         @AfterEach
         void tearDown() {
             verify(productRepository).findByQuery(productQuery);
-            verifyNoMoreInteractions(productRepository);
+            verify(imageStorageClient).generatePreSignedUrlForVisualization(product1.getImageIdentifier());
+            verify(imageStorageClient).generatePreSignedUrlForVisualization(product2.getImageIdentifier());
+            verify(imageStorageClient).generatePreSignedUrlForVisualization(product3.getImageIdentifier());
 
+            verifyNoMoreInteractions(productRepository, imageStorageClient);
             verifyNoInteractions(idGenerator, requestValidator);
         }
 
@@ -76,9 +92,9 @@ class ProductServiceTest {
         void whenCalled_shouldForwardTheCallToTheUnderlyingRepositoryAndConvertTheResultDto() {
             StepVerifier.create(productService.findProducts(searchProducts))
                     .expectSubscription()
-                    .expectNext(com.raphaelcollin.inventorymanagement.api.dto.out.Product.fromDomain(product1))
-                    .expectNext(com.raphaelcollin.inventorymanagement.api.dto.out.Product.fromDomain(product2))
-                    .expectNext(com.raphaelcollin.inventorymanagement.api.dto.out.Product.fromDomain(product3))
+                    .expectNext(com.raphaelcollin.inventorymanagement.api.dto.out.Product.from(product1, image1))
+                    .expectNext(com.raphaelcollin.inventorymanagement.api.dto.out.Product.from(product2, image2))
+                    .expectNext(com.raphaelcollin.inventorymanagement.api.dto.out.Product.from(product3, image3))
                     .verifyComplete();
         }
     }
@@ -87,6 +103,7 @@ class ProductServiceTest {
     @DisplayName("method: findById(String)")
     class FindByIdMethod {
         private final Product product = ProductFactoryForTests.newProductDomain();
+        private final Image image = ImageFactoryForTests.newImageDomain();
 
         @AfterEach
         void tearDown() {
@@ -107,17 +124,23 @@ class ProductServiceTest {
                             .isInstanceOf(EntityNotFoundException.class)
                             .hasMessage("Product with ID %s was not found", product.getId())
                     );
+
+            verifyNoInteractions(imageStorageClient);
         }
 
         @Test
         @DisplayName("when product is found, then it should convert it to dto")
         void whenProductIsFound_shouldConvertItToDto() {
             when(productRepository.findById(product.getId())).thenReturn(Mono.just(product));
+            when(imageStorageClient.generatePreSignedUrlForVisualization(product.getImageIdentifier())).thenReturn(Mono.just(image));
 
             StepVerifier.create(productService.findById(product.getId()))
                     .expectSubscription()
-                    .expectNext(com.raphaelcollin.inventorymanagement.api.dto.out.Product.fromDomain(product))
+                    .expectNext(com.raphaelcollin.inventorymanagement.api.dto.out.Product.from(product, image))
                     .verifyComplete();
+
+            verify(imageStorageClient).generatePreSignedUrlForVisualization(product.getImageIdentifier());
+            verifyNoMoreInteractions(imageStorageClient);
         }
     }
 
@@ -126,6 +149,7 @@ class ProductServiceTest {
     class SaveMethod {
         private final CreateProduct createProduct = ProductFactoryForTests.newCreateProductDto();
         private final Product product = createProduct.toDomain(UUID.randomUUID().toString());
+        private final Image image = ImageFactoryForTests.newImageDomain();
 
         @AfterEach
         void tearDown() {
@@ -137,15 +161,17 @@ class ProductServiceTest {
         void whenTheProductIsCreatedSuccessfully_shouldReturnTheDtoRepresentationOfIt() {
             when(requestValidator.validate(createProduct)).thenReturn(Mono.just(createProduct));
             when(productRepository.save(product)).thenReturn(Mono.empty());
+            when(imageStorageClient.generatePreSignedUrlForVisualization(product.getImageIdentifier())).thenReturn(Mono.just(image));
             when(idGenerator.newId()).thenReturn(product.getId());
 
             StepVerifier.create(productService.save(createProduct))
                     .expectSubscription()
-                    .expectNext(com.raphaelcollin.inventorymanagement.api.dto.out.Product.fromDomain(product))
+                    .expectNext(com.raphaelcollin.inventorymanagement.api.dto.out.Product.from(product, image))
                     .verifyComplete();
 
             verify(productRepository).save(product);
             verify(idGenerator).newId();
+            verify(imageStorageClient).generatePreSignedUrlForVisualization(product.getImageIdentifier());
             verifyNoMoreInteractions(requestValidator, idGenerator, productRepository);
         }
 
@@ -162,7 +188,7 @@ class ProductServiceTest {
                     .verify();
 
             verifyNoMoreInteractions(requestValidator);
-            verifyNoInteractions(idGenerator, productRepository);
+            verifyNoInteractions(idGenerator, productRepository, imageStorageClient);
         }
     }
 
@@ -176,7 +202,7 @@ class ProductServiceTest {
         @AfterEach
         void tearDown() {
             verify(requestValidator).validate(updateProduct);
-            verifyNoInteractions(idGenerator);
+            verifyNoInteractions(idGenerator, imageStorageClient);
             verifyNoMoreInteractions(requestValidator);
         }
 
@@ -240,7 +266,7 @@ class ProductServiceTest {
         @AfterEach
         void tearDown() {
             verify(productRepository).deleteById(productId);
-            verifyNoInteractions(idGenerator, requestValidator);
+            verifyNoInteractions(idGenerator, requestValidator, imageStorageClient);
             verifyNoMoreInteractions(productRepository);
         }
 

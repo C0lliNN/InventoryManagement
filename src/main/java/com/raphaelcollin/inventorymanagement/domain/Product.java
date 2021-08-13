@@ -17,5 +17,8 @@ public class Product {
     String description;
     @NonNull
     BigDecimal price;
-    int quantity;
+    @NonNull
+    Integer quantity;
+    @NonNull
+    String imageIdentifier;
 }

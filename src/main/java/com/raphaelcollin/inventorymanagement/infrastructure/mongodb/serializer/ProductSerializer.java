@@ -16,6 +16,7 @@ public class ProductSerializer implements DocumentSerializer<Product, ProductDoc
                 .description(document.getDescription())
                 .price(document.getPrice())
                 .quantity(document.getQuantity())
+                .imageIdentifier(document.getImageIdentifier())
                 .build();
     }
 
@@ -26,7 +27,8 @@ public class ProductSerializer implements DocumentSerializer<Product, ProductDoc
                 domain.getTitle(),
                 domain.getDescription(),
                 domain.getPrice(),
-                domain.getQuantity()
+                domain.getQuantity(),
+                domain.getImageIdentifier()
         );
     }
 }

@@ -8,6 +8,7 @@ import com.raphaelcollin.inventorymanagement.api.validation.RequestValidator;
 import com.raphaelcollin.inventorymanagement.domain.ProductRepository;
 import com.raphaelcollin.inventorymanagement.domain.common.IdGenerator;
 import com.raphaelcollin.inventorymanagement.domain.exceptions.EntityNotFoundException;
+import com.raphaelcollin.inventorymanagement.domain.storage.ImageStorageClient;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
@@ -20,20 +21,21 @@ import static java.lang.String.format;
 @AllArgsConstructor
 public class ProductService {
     private final ProductRepository productRepository;
+    private final ImageStorageClient imageStorageClient;
     private final IdGenerator idGenerator;
     private final RequestValidator validator;
 
     public Flux<Product> findProducts(final SearchProducts searchProducts) {
         return productRepository
                 .findByQuery(searchProducts.toDomain())
-                .map(Product::fromDomain);
+                .flatMap(this::generatePreSignedUrlAndMapToDto);
     }
 
     public Mono<Product> findById(final String productId) {
         return productRepository
                 .findById(productId)
                 .switchIfEmpty(Mono.error(new EntityNotFoundException(format("Product with ID %s was not found", productId))))
-                .map(Product::fromDomain);
+                .flatMap(this::generatePreSignedUrlAndMapToDto);
     }
 
     public Mono<Product> save(final CreateProduct createProduct) {
@@ -41,7 +43,7 @@ public class ProductService {
                 .validate(createProduct)
                 .map(create -> create.toDomain(idGenerator.newId()))
                 .flatMap(product -> productRepository.save(product).thenReturn(product))
-                .map(Product::fromDomain);
+                .flatMap(this::generatePreSignedUrlAndMapToDto);
     }
 
     public Mono<Void> updateById(final String productId, final UpdateProduct updateProduct) {
@@ -59,5 +61,11 @@ public class ProductService {
                 .deleteById(productId)
                 .filter(BooleanUtils::isTrue)
                 .switchIfEmpty(Mono.error(new EntityNotFoundException(format("Product with ID %s was not found", productId)))).then();
+    }
+
+    private Mono<Product> generatePreSignedUrlAndMapToDto(final com.raphaelcollin.inventorymanagement.domain.Product product) {
+        return imageStorageClient
+                .generatePreSignedUrlForVisualization(product.getImageIdentifier())
+                .map(image -> Product.from(product, image));
     }
 }

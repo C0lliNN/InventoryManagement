@@ -9,6 +9,9 @@ A Non-Blocking REST API developed in Java 11, Spring Boot 2 and Spring WebFlux t
 * Testcontainers to simulate a real production database 
 * Jacoco to check test coverage 
 * Archunit
+* Springdoc
+* Amazon S3
+* Localstack
 
 ## How to run
 

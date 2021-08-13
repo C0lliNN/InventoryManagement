@@ -95,21 +95,12 @@ public class ComponentsArchitectureTest extends ArchitectureBaseTest {
     class ServiceTest {
 
         @Test
-        @DisplayName("Service should be accordingly annotated and reside in Domain package")
+        @DisplayName("Service should be accordingly annotated and reside in Api package")
         void givenService_shouldAnnotated() {
             classes()
                     .that().haveSimpleNameEndingWith("Service")
                     .should().beAnnotatedWith(Service.class)
-                    .andShould().resideInAPackage(DOMAIN_LAYER_PACKAGES)
-                    .check(classes);
-        }
-
-        @Test
-        @DisplayName("Service should not access Dtos")
-        void givenService_shouldNotAccessDtos() {
-            noClasses()
-                    .that().areAnnotatedWith(Service.class)
-                    .should().dependOnClassesThat().resideInAPackage("..api.dto..")
+                    .andShould().resideInAPackage(API_LAYER_PACKAGES)
                     .check(classes);
         }
     }

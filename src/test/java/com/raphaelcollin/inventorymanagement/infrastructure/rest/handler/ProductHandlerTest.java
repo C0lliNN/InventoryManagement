@@ -6,11 +6,15 @@ import com.raphaelcollin.inventorymanagement.api.dto.in.UpdateProduct;
 import com.raphaelcollin.inventorymanagement.domain.Product;
 import com.raphaelcollin.inventorymanagement.domain.ProductFactoryForTests;
 import com.raphaelcollin.inventorymanagement.domain.ProductQuery;
+import com.raphaelcollin.inventorymanagement.domain.storage.Image;
+import com.raphaelcollin.inventorymanagement.domain.storage.ImageStorageClient;
 import com.raphaelcollin.inventorymanagement.infrastructure.DatabaseTestAutoConfiguration;
+import com.raphaelcollin.inventorymanagement.infrastructure.clients.AmazonS3ImageStorageClient;
 import com.raphaelcollin.inventorymanagement.infrastructure.mongodb.document.ProductDocument;
 import com.raphaelcollin.inventorymanagement.infrastructure.mongodb.repository.ReactiveMongoProductRepository;
 import com.raphaelcollin.inventorymanagement.infrastructure.mongodb.serializer.ProductSerializer;
 import com.raphaelcollin.inventorymanagement.utils.initializers.DatabaseContainerInitializer;
+import com.raphaelcollin.inventorymanagement.utils.initializers.LocalstackContainerInitializer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -38,11 +41,14 @@ import static java.lang.String.format;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.doThrow;
 
-@ContextConfiguration(initializers = DatabaseContainerInitializer.class)
-@EnableAutoConfiguration
+@ContextConfiguration(initializers = {
+        DatabaseContainerInitializer.class,
+        LocalstackContainerInitializer.class
+})
 @SpringBootTest(classes = {
         ReactiveMongoProductRepository.class,
         DatabaseTestAutoConfiguration.class,
+        AmazonS3ImageStorageClient.class,
         ProductSerializer.class
 })
 @AutoConfigureWebTestClient
@@ -56,6 +62,9 @@ class ProductHandlerTest {
 
     @Autowired
     private ReactiveMongoTemplate template;
+
+    @Autowired
+    private ImageStorageClient imageStorageClient;
 
     private final Product product1 = ProductFactoryForTests.newProductDomain()
             .toBuilder()
@@ -73,6 +82,10 @@ class ProductHandlerTest {
             .quantity(15)
             .build();
 
+    private Image image1;
+    private Image image2;
+    private Image image3;
+
     private static final String ROOT_URI = "/api/v1/products";
 
     @BeforeEach
@@ -80,6 +93,18 @@ class ProductHandlerTest {
         productRepository.save(product1).block();
         productRepository.save(product2).block();
         productRepository.save(product3).block();
+
+        image1 = imageStorageClient.generatePreSignedUrlForVisualization(product1.getImageIdentifier())
+                .blockOptional()
+                .orElseThrow();
+
+        image2 = imageStorageClient.generatePreSignedUrlForVisualization(product2.getImageIdentifier())
+                .blockOptional()
+                .orElseThrow();
+
+        image3 = imageStorageClient.generatePreSignedUrlForVisualization(product3.getImageIdentifier())
+                .blockOptional()
+                .orElseThrow();
     }
 
     @AfterEach
@@ -105,16 +130,19 @@ class ProductHandlerTest {
                     .jsonPath("$[0].description").value(is(product1.getDescription()))
                     .jsonPath("$[0].price").value(is(product1.getPrice().intValue()))
                     .jsonPath("$[0].quantity").value(is(product1.getQuantity()))
+                    .jsonPath("$[0].imageUrl").value(is(image1.getPreSignedUrl()))
                     .jsonPath("$[1].id").value(is(product2.getId()))
                     .jsonPath("$[1].title").value(is(product2.getTitle()))
                     .jsonPath("$[1].description").value(is(product2.getDescription()))
                     .jsonPath("$[1].price").value(is(product2.getPrice().intValue()))
                     .jsonPath("$[1].quantity").value(is(product2.getQuantity()))
+                    .jsonPath("$[1].imageUrl").value(is(image2.getPreSignedUrl()))
                     .jsonPath("$[2].id").value(is(product3.getId()))
                     .jsonPath("$[2].title").value(is(product3.getTitle()))
                     .jsonPath("$[2].description").value(is(product3.getDescription()))
                     .jsonPath("$[2].price").value(is(product3.getPrice().intValue()))
-                    .jsonPath("$[2].quantity").value(is(product3.getQuantity()));
+                    .jsonPath("$[2].quantity").value(is(product3.getQuantity()))
+                    .jsonPath("$[2].imageUrl").value(is(image3.getPreSignedUrl()));
         }
 
         @Test
@@ -134,7 +162,8 @@ class ProductHandlerTest {
                     .jsonPath("$[0].title").value(is(product1.getTitle()))
                     .jsonPath("$[0].description").value(is(product1.getDescription()))
                     .jsonPath("$[0].price").value(is(product1.getPrice().intValue()))
-                    .jsonPath("$[0].quantity").value(is(product1.getQuantity()));
+                    .jsonPath("$[0].quantity").value(is(product1.getQuantity()))
+                    .jsonPath("$[0].imageUrl").value(is(image1.getPreSignedUrl()));
         }
 
         @Test
@@ -155,11 +184,13 @@ class ProductHandlerTest {
                     .jsonPath("$[0].description").value(is(product2.getDescription()))
                     .jsonPath("$[0].price").value(is(product2.getPrice().intValue()))
                     .jsonPath("$[0].quantity").value(is(product2.getQuantity()))
+                    .jsonPath("$[0].imageUrl").value(is(image2.getPreSignedUrl()))
                     .jsonPath("$[1].id").value(is(product3.getId()))
                     .jsonPath("$[1].title").value(is(product3.getTitle()))
                     .jsonPath("$[1].description").value(is(product3.getDescription()))
                     .jsonPath("$[1].price").value(is(product3.getPrice().intValue()))
-                    .jsonPath("$[1].quantity").value(is(product3.getQuantity()));
+                    .jsonPath("$[1].quantity").value(is(product3.getQuantity()))
+                    .jsonPath("$[1].imageUrl").value(is(image3.getPreSignedUrl()));
         }
     }
 
@@ -180,7 +211,8 @@ class ProductHandlerTest {
                     .jsonPath("$.title").value(is(product1.getTitle()))
                     .jsonPath("$.description").value(is(product1.getDescription()))
                     .jsonPath("$.price").value(is(product1.getPrice().intValue()))
-                    .jsonPath("$.quantity").value(is(product1.getQuantity()));
+                    .jsonPath("$.quantity").value(is(product1.getQuantity()))
+                    .jsonPath("$.imageUrl").value(is(image1.getPreSignedUrl()));
         }
 
         @Test
@@ -209,7 +241,8 @@ class ProductHandlerTest {
                     null,
                     faker.lorem().sentence(),
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
-                    faker.random().nextInt(4, 20)
+                    faker.random().nextInt(4, 20),
+                    faker.internet().uuid()
             );
 
             client.post()
@@ -232,7 +265,8 @@ class ProductHandlerTest {
                     faker.lorem().fixedString(155),
                     faker.lorem().sentence(),
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
-                    faker.random().nextInt(4, 20)
+                    faker.random().nextInt(4, 20),
+                    faker.internet().uuid()
             );
 
             client.post()
@@ -255,7 +289,8 @@ class ProductHandlerTest {
                     faker.lorem().characters(),
                     null,
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
-                    faker.random().nextInt(4, 20)
+                    faker.random().nextInt(4, 20),
+                    faker.internet().uuid()
             );
 
             client.post()
@@ -278,7 +313,8 @@ class ProductHandlerTest {
                     faker.lorem().characters(),
                     faker.lorem().fixedString(1005),
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
-                    faker.random().nextInt(4, 20)
+                    faker.random().nextInt(4, 20),
+                    faker.internet().uuid()
             );
 
             client.post()
@@ -301,7 +337,8 @@ class ProductHandlerTest {
                     faker.lorem().characters(),
                     faker.lorem().sentence(),
                     null,
-                    faker.random().nextInt(4, 20)
+                    faker.random().nextInt(4, 20),
+                    faker.internet().uuid()
             );
 
             client.post()
@@ -325,7 +362,8 @@ class ProductHandlerTest {
                     faker.lorem().characters(),
                     faker.lorem().sentence(),
                     BigDecimal.valueOf(price),
-                    faker.random().nextInt(4, 20)
+                    faker.random().nextInt(4, 20),
+                    faker.internet().uuid()
             );
 
             client.post()
@@ -348,7 +386,8 @@ class ProductHandlerTest {
                     faker.lorem().characters(),
                     faker.lorem().sentence(),
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
-                    null
+                    null,
+                    faker.internet().uuid()
             );
 
             client.post()
@@ -371,7 +410,8 @@ class ProductHandlerTest {
                     faker.lorem().characters(),
                     faker.lorem().sentence(),
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
-                    -1
+                    -1,
+                    faker.internet().uuid()
             );
 
             client.post()
@@ -388,9 +428,60 @@ class ProductHandlerTest {
         }
 
         @Test
+        @DisplayName("when called without imageIdentifier, then it should return 400 error")
+        void whenCalledWithoutImageIdentifier_shouldReturn400Error() {
+            final CreateProduct createProduct = new CreateProduct(
+                    faker.lorem().characters(),
+                    faker.lorem().sentence(),
+                    BigDecimal.valueOf(faker.random().nextInt(1, 100)),
+                    faker.random().nextInt(4, 20),
+                    null
+            );
+
+            client.post()
+                    .uri(ROOT_URI)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(createProduct)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .exchange()
+                    .expectStatus().isBadRequest()
+                    .expectBody()
+                    .jsonPath("$.message").value(is("The given payload is invalid. Check the 'details' field."))
+                    .jsonPath("$.details[0].field").value(is("imageIdentifier"))
+                    .jsonPath("$.details[0].message").value(is("the field is mandatory"));
+        }
+
+        @Test
+        @DisplayName("when called with invalid imageIdentifier, then it should return 400 error")
+        void whenCalledWithInvalidImageIdentifier_shouldReturn400Error() {
+            final CreateProduct createProduct = new CreateProduct(
+                    faker.lorem().characters(),
+                    faker.lorem().sentence(),
+                    BigDecimal.valueOf(faker.random().nextInt(1, 100)),
+                    faker.random().nextInt(4, 20),
+                    faker.internet().uuid().repeat(2)
+            );
+
+            client.post()
+                    .uri(ROOT_URI)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(createProduct)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .exchange()
+                    .expectStatus().isBadRequest()
+                    .expectBody()
+                    .jsonPath("$.message").value(is("The given payload is invalid. Check the 'details' field."))
+                    .jsonPath("$.details[0].field").value(is("imageIdentifier"))
+                    .jsonPath("$.details[0].message").value(is("the field must not exceed 36 characters"));
+        }
+
+        @Test
         @DisplayName("when called with valid payload, then it should return 201 and persist the product")
         void whenCalledWithValidPayload_shouldReturn201AndPersistTheProduct() {
             final CreateProduct createProduct = ProductFactoryForTests.newCreateProductDto();
+            final Image image = imageStorageClient.generatePreSignedUrlForVisualization(createProduct.getImageIdentifier())
+                    .blockOptional()
+                    .orElseThrow();
 
             client.post()
                     .uri(ROOT_URI)
@@ -404,7 +495,8 @@ class ProductHandlerTest {
                     .jsonPath("$.title").value(is(createProduct.getTitle()))
                     .jsonPath("$.description").value(is(createProduct.getDescription()))
                     .jsonPath("$.price").value(is(createProduct.getPrice().intValue()))
-                    .jsonPath("$.quantity").value(is(createProduct.getQuantity()));
+                    .jsonPath("$.quantity").value(is(createProduct.getQuantity()))
+                    .jsonPath("$.imageUrl").value(is(image.getPreSignedUrl()));
 
             StepVerifier.create(productRepository.findByQuery(ProductQuery.builder().build()))
                     .expectSubscription()
@@ -424,6 +516,7 @@ class ProductHandlerTest {
         void whenCalledWithInvalidTitle_shouldReturn400Error() {
             final UpdateProduct updateProduct = new UpdateProduct(
                     faker.lorem().fixedString(151),
+                    null,
                     null,
                     null,
                     null
@@ -448,6 +541,7 @@ class ProductHandlerTest {
 
             final UpdateProduct updateProduct = new UpdateProduct(
                     newTitle,
+                    null,
                     null,
                     null,
                     null
@@ -476,6 +570,7 @@ class ProductHandlerTest {
                     null,
                     faker.lorem().fixedString(1001),
                     null,
+                    null,
                     null
             );
 
@@ -499,6 +594,7 @@ class ProductHandlerTest {
             final UpdateProduct updateProduct = new UpdateProduct(
                     null,
                     newDescription,
+                    null,
                     null,
                     null
             );
@@ -527,6 +623,7 @@ class ProductHandlerTest {
                     null,
                     null,
                     BigDecimal.valueOf(price),
+                    null,
                     null
             );
 
@@ -551,6 +648,7 @@ class ProductHandlerTest {
                     null,
                     null,
                     newPrice,
+                    null,
                     null
             );
 
@@ -577,7 +675,8 @@ class ProductHandlerTest {
                     null,
                     null,
                     null,
-                    -1
+                    -1,
+                    null
             );
 
             client.patch()
@@ -601,7 +700,8 @@ class ProductHandlerTest {
                     null,
                     null,
                     null,
-                    newQuantity
+                    newQuantity,
+                    null
             );
 
             client.patch()
@@ -621,13 +721,66 @@ class ProductHandlerTest {
         }
 
         @Test
+        @DisplayName("when called with invalid imageIdentifier, then it should return 400 error")
+        void whenCalledWithInvalidImageIdentifier_shouldReturn400Error() {
+            final UpdateProduct updateProduct = new UpdateProduct(
+                    null,
+                    null,
+                    null,
+                    null,
+                    faker.internet().uuid().repeat(2)
+            );
+
+            client.patch()
+                    .uri(ROOT_URI + "/" + product1.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(updateProduct)
+                    .exchange()
+                    .expectStatus().isBadRequest()
+                    .expectBody()
+                    .jsonPath("$.message").value(is("The given payload is invalid. Check the 'details' field."))
+                    .jsonPath("$.details[0].field").value(is("imageIdentifier"))
+                    .jsonPath("$.details[0].message").value(is("the field must not exceed 36 characters"));
+        }
+
+        @Test
+        @DisplayName("when called with valid imageIdentifier, then it should return 204 and update it")
+        void whenCalledWithValidImageIdentifier_shouldReturn204AndUpdateIt() {
+            final String newImageIdentifier = faker.internet().uuid();
+
+            final UpdateProduct updateProduct = new UpdateProduct(
+                    null,
+                    null,
+                    null,
+                    null,
+                    newImageIdentifier
+            );
+
+            client.patch()
+                    .uri(ROOT_URI + "/" + product1.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(updateProduct)
+                    .exchange()
+                    .expectStatus().isNoContent()
+                    .expectBody().isEmpty();
+
+            final Product expectedProduct = product1.toBuilder().imageIdentifier(newImageIdentifier).build();
+
+            StepVerifier.create(productRepository.findById(product1.getId()))
+                    .expectSubscription()
+                    .expectNext(expectedProduct)
+                    .verifyComplete();
+        }
+
+        @Test
         @DisplayName("when called with multiple invalid fields, then it should return 400")
         void whenCalledWithMultipleInvalidFields_shouldReturn400() {
             final UpdateProduct updateProduct = new UpdateProduct(
                     faker.lorem().fixedString(151),
                     faker.lorem().fixedString(1051),
                     null,
-                    -1
+                    -1,
+                    null
             );
 
             client.patch()
@@ -656,7 +809,8 @@ class ProductHandlerTest {
                     newTitle,
                     null,
                     null,
-                    newQuantity
+                    newQuantity,
+                    null
             );
 
             client.patch()
@@ -677,7 +831,7 @@ class ProductHandlerTest {
 
         @Test
         @DisplayName("when some unexpected error is throw, then it should return 500")
-        void when() {
+        void whenSomeUnexpectedErrorIsThrown_shouldReturn500() {
             doThrow(RuntimeException.class)
                     .when(productRepository)
                     .findById(product1.getId());
@@ -686,7 +840,8 @@ class ProductHandlerTest {
                     null,
                     null,
                     null,
-                    90
+                    90,
+                    null
             );
 
             client.patch()

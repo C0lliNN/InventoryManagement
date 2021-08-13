@@ -36,6 +36,7 @@ class CreateProductTest {
                     .description(createProductDto.getDescription())
                     .price(createProductDto.getPrice())
                     .quantity(createProductDto.getQuantity())
+                    .imageIdentifier(createProductDto.getImageIdentifier())
                     .build();
         }
     }

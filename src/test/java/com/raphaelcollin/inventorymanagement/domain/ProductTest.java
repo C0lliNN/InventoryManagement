@@ -42,11 +42,19 @@ class ProductTest {
             }
 
             @Test
-            @DisplayName("when called and 'price' is null, then it should throw a NullPointerException")
-            void whenCalledAndPriceIsNull_shouldThrowANullPointerException() {
-                assertThatThrownBy(() -> Product.toBuilder().price(null).build())
+            @DisplayName("when called and 'quantity' is null, then it should throw a NullPointerException")
+            void whenCalledAndQuantityIsNull_shouldThrowANullPointerException() {
+                assertThatThrownBy(() -> Product.toBuilder().quantity(null).build())
                         .isInstanceOf(NullPointerException.class)
-                        .hasMessage("price is marked non-null but is null");
+                        .hasMessage("quantity is marked non-null but is null");
+            }
+
+            @Test
+            @DisplayName("when called and 'imageIdentifier' is null, then it should throw a NullPointerException")
+            void whenCalledAndImageIdentifierIsNull_shouldThrowANullPointerException() {
+                assertThatThrownBy(() -> Product.toBuilder().imageIdentifier(null).build())
+                        .isInstanceOf(NullPointerException.class)
+                        .hasMessage("imageIdentifier is marked non-null but is null");
             }
 
         }

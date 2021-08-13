@@ -27,12 +27,14 @@ class UpdateProductTest {
             final String description = FAKER.lorem().sentence();
             final BigDecimal price = BigDecimal.valueOf(FAKER.random().nextInt(1, 10));
             final int quantity = FAKER.random().nextInt(1, 100);
+            final String imageIdentifier = FAKER.internet().uuid();
 
             final var updateProduct = new UpdateProduct(
                     title,
                     description,
                     price,
-                    quantity
+                    quantity,
+                    imageIdentifier
             );
 
             final var expectedProduct = PRODUCT.toBuilder()
@@ -40,6 +42,7 @@ class UpdateProductTest {
                     .description(description)
                     .price(price)
                     .quantity(quantity)
+                    .imageIdentifier(imageIdentifier)
                     .build();
 
             final var actualProduct = updateProduct.toDomain(PRODUCT);
@@ -54,6 +57,7 @@ class UpdateProductTest {
 
             final var updateProduct = new UpdateProduct(
                     title,
+                    null,
                     null,
                     null,
                     null
@@ -74,6 +78,7 @@ class UpdateProductTest {
                     null,
                     description,
                     null,
+                    null,
                     null
             );
 
@@ -92,6 +97,7 @@ class UpdateProductTest {
                     null,
                     null,
                     price,
+                    null,
                     null
             );
 
@@ -110,10 +116,30 @@ class UpdateProductTest {
                     null,
                     null,
                     null,
-                    quantity
+                    quantity,
+                    null
             );
 
             final var expectedProduct = PRODUCT.toBuilder().quantity(quantity).build();
+            final var actualProduct = updateProduct.toDomain(PRODUCT);
+
+            assertThat(actualProduct).isEqualTo(expectedProduct);
+        }
+
+        @Test
+        @DisplayName("when only the imageIdentifier is filled, then it should only update it")
+        void whenOnlyTheImageIdentifierIsFilled_shouldOnlyUpdateIt() {
+            final String imageIdentifier = FAKER.internet().uuid();
+
+            final var updateProduct = new UpdateProduct(
+                    null,
+                    null,
+                    null,
+                    null,
+                    imageIdentifier
+            );
+
+            final var expectedProduct = PRODUCT.toBuilder().imageIdentifier(imageIdentifier).build();
             final var actualProduct = updateProduct.toDomain(PRODUCT);
 
             assertThat(actualProduct).isEqualTo(expectedProduct);

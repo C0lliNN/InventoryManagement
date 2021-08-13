@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import reactor.core.publisher.Flux;
@@ -31,10 +32,11 @@ import java.util.UUID;
                 ReactiveMongoProductRepository.class,
                 ProductSerializer.class
         },
-        webEnvironment = SpringBootTest.WebEnvironment.NONE
+        webEnvironment = SpringBootTest.WebEnvironment.MOCK
 )
-@ContextConfiguration(initializers = DatabaseContainerInitializer.class)
 @EnableAutoConfiguration
+@ComponentScan("com.raphaelcollin.inventorymanagement.infrastructure")
+@ContextConfiguration(initializers = DatabaseContainerInitializer.class)
 class ReactiveMongoProductRepositoryTest {
 
     @Autowired

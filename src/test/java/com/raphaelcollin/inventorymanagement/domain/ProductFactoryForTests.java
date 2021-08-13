@@ -20,6 +20,7 @@ public class ProductFactoryForTests {
                 .description(FAKER.lorem().sentence())
                 .price(BigDecimal.valueOf(FAKER.random().nextInt(12, 100)))
                 .quantity(FAKER.random().nextInt(1, 1000))
+                .imageIdentifier(FAKER.internet().uuid())
                 .build();
     }
 
@@ -29,7 +30,8 @@ public class ProductFactoryForTests {
                 FAKER.name().title(),
                 FAKER.lorem().sentence(),
                 BigDecimal.valueOf(FAKER.random().nextInt(12, 100)),
-                FAKER.random().nextInt(1, 1000)
+                FAKER.random().nextInt(1, 1000),
+                FAKER.internet().uuid()
         );
     }
 
@@ -46,7 +48,8 @@ public class ProductFactoryForTests {
                 FAKER.name().title(),
                 FAKER.lorem().sentence(),
                 BigDecimal.valueOf(FAKER.random().nextInt(12, 100)),
-                FAKER.random().nextInt(1, 1000)
+                FAKER.random().nextInt(1, 1000),
+                FAKER.internet().uuid()
         );
     }
 
@@ -55,7 +58,8 @@ public class ProductFactoryForTests {
                 FAKER.name().title(),
                 FAKER.lorem().sentence(),
                 BigDecimal.valueOf(FAKER.random().nextInt(12, 100)),
-                FAKER.random().nextInt(1, 1000)
+                FAKER.random().nextInt(1, 1000),
+                FAKER.internet().uuid()
         );
     }
 

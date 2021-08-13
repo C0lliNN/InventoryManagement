@@ -23,6 +23,9 @@ public class UpdateProduct {
     @PositiveOrZero(message = "the field must contain a positive value")
     Integer quantity;
 
+    @Size(max = 36, message = "the field must not exceed {max} characters")
+    String imageIdentifier;
+
     public Product toDomain(final Product product) {
         final Product.ProductBuilder builder = product.toBuilder();
 
@@ -30,6 +33,7 @@ public class UpdateProduct {
         getDescription().map(builder::description);
         getPrice().map(builder::price);
         getQuantity().map(builder::quantity);
+        getImageIdentifier().map(builder::imageIdentifier);
 
         return builder.build();
     }
@@ -48,5 +52,9 @@ public class UpdateProduct {
 
     public Optional<Integer> getQuantity() {
         return Optional.ofNullable(quantity);
+    }
+
+    public Optional<String> getImageIdentifier() {
+        return Optional.ofNullable(imageIdentifier);
     }
 }
