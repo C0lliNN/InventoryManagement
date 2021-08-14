@@ -12,7 +12,7 @@ public class ProductSerializer implements DocumentSerializer<Product, ProductDoc
         return Product
                 .builder()
                 .id(document.getId())
-                .title(document.getTitle())
+                .name(document.getName())
                 .description(document.getDescription())
                 .price(document.getPrice())
                 .quantity(document.getQuantity())
@@ -24,7 +24,7 @@ public class ProductSerializer implements DocumentSerializer<Product, ProductDoc
     public ProductDocument toDocument(final Product domain) {
         return new ProductDocument(
                 domain.getId(),
-                domain.getTitle(),
+                domain.getName(),
                 domain.getDescription(),
                 domain.getPrice(),
                 domain.getQuantity(),

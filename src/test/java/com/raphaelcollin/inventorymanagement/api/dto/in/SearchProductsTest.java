@@ -15,25 +15,25 @@ class SearchProductsTest {
 
         @ParameterizedTest
         @CsvSource({
-                "title1,3,title1,3",
-                "title1,0,title1,0",
+                "name1,3,name1,3",
+                "name1,0,name1,0",
                 "null,3,null,3",
                 "null,0,null,0",
         })
         @DisplayName("when called, then it should return the correct domain object")
         void whenCalled_shouldReturnTheCorrectDomainObject(
-                String actualTitle,
+                String actualName,
                 int actualMinQuantity,
-                String expectedTitle,
+                String expectedName,
                 int expectedMinQuantity) {
 
             final ProductQuery expectedQuery = ProductQuery
                     .builder()
-                    .title(expectedTitle)
+                    .name(expectedName)
                     .minQuantity(expectedMinQuantity)
                     .build();
 
-            final SearchProducts searchProducts = new SearchProducts(actualTitle, actualMinQuantity);
+            final SearchProducts searchProducts = new SearchProducts(actualName, actualMinQuantity);
             final ProductQuery actualQuery = searchProducts.toDomain();
 
             Assertions.assertThat(actualQuery).isEqualTo(expectedQuery);

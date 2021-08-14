@@ -31,7 +31,7 @@ class ProductTest {
                                             final Image image) {
             return new Product(
                     product.getId(),
-                    product.getTitle(),
+                    product.getName(),
                     product.getDescription(),
                     product.getPrice(),
                     product.getQuantity(),

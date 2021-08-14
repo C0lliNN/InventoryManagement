@@ -25,8 +25,8 @@ public class ReactiveMongoProductRepository implements ProductRepository {
     public Flux<Product> findByQuery(final ProductQuery productQuery) {
         final Query mongoQuery = new Query();
 
-        productQuery.getTitle()
-                .ifPresent(title -> mongoQuery.addCriteria(new Criteria("title").is(title)));
+        productQuery.getName()
+                .ifPresent(name -> mongoQuery.addCriteria(new Criteria("name").is(name)));
 
         productQuery.getMinQuantity()
                 .ifPresent(quantity -> mongoQuery.addCriteria(new Criteria("quantity").gte(quantity)));
@@ -35,7 +35,7 @@ public class ReactiveMongoProductRepository implements ProductRepository {
                 .query(ProductDocument.class)
                 .matching(mongoQuery)
                 .all()
-                .sort(Comparator.comparing(ProductDocument::getTitle))
+                .sort(Comparator.comparing(ProductDocument::getName))
                 .map(serializer::fromDocument);
     }
 

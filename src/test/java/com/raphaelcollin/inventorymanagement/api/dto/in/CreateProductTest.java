@@ -32,7 +32,7 @@ class CreateProductTest {
             return Product
                     .builder()
                     .id(PRODUCT_ID)
-                    .title(createProductDto.getTitle())
+                    .name(createProductDto.getName())
                     .description(createProductDto.getDescription())
                     .price(createProductDto.getPrice())
                     .quantity(createProductDto.getQuantity())

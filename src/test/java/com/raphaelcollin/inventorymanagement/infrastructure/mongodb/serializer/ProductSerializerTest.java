@@ -31,7 +31,7 @@ class ProductSerializerTest {
             return Product
                     .builder()
                     .id(document.getId())
-                    .title(document.getTitle())
+                    .name(document.getName())
                     .description(document.getDescription())
                     .price(document.getPrice())
                     .quantity(document.getQuantity())
@@ -58,7 +58,7 @@ class ProductSerializerTest {
         private ProductDocument createDocumentFromDomain(final Product domain) {
             return new ProductDocument(
                     domain.getId(),
-                    domain.getTitle(),
+                    domain.getName(),
                     domain.getDescription(),
                     domain.getPrice(),
                     domain.getQuantity(),

@@ -62,19 +62,19 @@ class ReactiveMongoProductRepositoryTest {
             this.product1 = ProductFactoryForTests.newProductDomain()
                     .toBuilder()
                     .quantity(5)
-                    .title("456")
+                    .name("456")
                     .build();
 
             this.product2 = ProductFactoryForTests.newProductDomain()
                     .toBuilder()
                     .quantity(10)
-                    .title("123")
+                    .name("123")
                     .build();
 
             this.product3 = ProductFactoryForTests.newProductDomain()
                     .toBuilder()
                     .quantity(15)
-                    .title("658")
+                    .name("658")
                     .build();
 
             Flux.just(product1, product2, product3)
@@ -83,8 +83,8 @@ class ReactiveMongoProductRepositoryTest {
         }
 
         @Test
-        @DisplayName("when query is empty, then it should return all persisted products sorted by title")
-        void whenQueryIsEmpty_shouldReturnAllPersistedProductsSortedByTitle() {
+        @DisplayName("when query is empty, then it should return all persisted products sorted by name")
+        void whenQueryIsEmpty_shouldReturnAllPersistedProductsSortedByName() {
             final ProductQuery productQuery = ProductQuery.builder().build();
             final Flux<Product> products = repository.findByQuery(productQuery);
 
@@ -95,9 +95,9 @@ class ReactiveMongoProductRepositoryTest {
         }
 
         @Test
-        @DisplayName("when query contains 'title', then it should return all products matching it")
-        void whenQueryContainsTitle_shouldReturnAllProductsMatchingIt() {
-            final ProductQuery query = ProductQuery.builder().title(product1.getTitle()).build();
+        @DisplayName("when query contains 'name', then it should return all products matching it")
+        void whenQueryContainsName_shouldReturnAllProductsMatchingIt() {
+            final ProductQuery query = ProductQuery.builder().name(product1.getName()).build();
             final Flux<Product> products = repository.findByQuery(query);
 
             StepVerifier.create(products)
@@ -124,7 +124,7 @@ class ReactiveMongoProductRepositoryTest {
         void whenQueryContainsMultipleElements_shouldReturnOnlyTheProductMatchingIt() {
             final ProductQuery query = ProductQuery.builder()
                     .minQuantity(10)
-                    .title(product1.getTitle())
+                    .name(product1.getName())
                     .minQuantity(product1.getQuantity())
                     .build();
             final Flux<Product> products = repository.findByQuery(query);
@@ -190,7 +190,7 @@ class ReactiveMongoProductRepositoryTest {
         @DisplayName("when called and the product was previously saved, then it should update the product")
         void whenTheFieldIdMatchesAnExistingProduct_shouldThrowAnException() {
             final Product persistedTime = ProductFactoryForTests.newProductDomain();
-            final Product newProduct = persistedTime.toBuilder().title("newTitle").build();
+            final Product newProduct = persistedTime.toBuilder().name("newName").build();
 
             final Mono<Product> mono = repository.save(persistedTime)
                     .then(repository.save(newProduct))

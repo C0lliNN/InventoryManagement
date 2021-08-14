@@ -12,7 +12,7 @@ import java.util.Optional;
 @Value
 public class UpdateProduct {
     @Size(max = 150, message = "the field must not exceed {max} characters")
-    String title;
+    String name;
 
     @Size(max = 1000, message = "the field must not exceed {max} characters")
     String description;
@@ -29,7 +29,7 @@ public class UpdateProduct {
     public Product toDomain(final Product product) {
         final Product.ProductBuilder builder = product.toBuilder();
 
-        getTitle().map(builder::title);
+        getName().map(builder::name);
         getDescription().map(builder::description);
         getPrice().map(builder::price);
         getQuantity().map(builder::quantity);
@@ -38,8 +38,8 @@ public class UpdateProduct {
         return builder.build();
     }
 
-    public Optional<String> getTitle() {
-        return Optional.ofNullable(title);
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
     }
 
     public Optional<String> getDescription() {

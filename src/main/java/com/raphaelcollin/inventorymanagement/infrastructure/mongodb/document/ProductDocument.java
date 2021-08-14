@@ -16,7 +16,7 @@ public class ProductDocument {
 
     @Id
     private String id;
-    private String title;
+    private String name;
     private String description;
     private BigDecimal price;
     private Integer quantity;

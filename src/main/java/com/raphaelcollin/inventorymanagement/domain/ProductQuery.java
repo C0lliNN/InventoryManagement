@@ -8,11 +8,11 @@ import java.util.Optional;
 @Value
 @Builder
 public class ProductQuery {
-    String title;
+    String name;
     Integer minQuantity;
 
-    public Optional<String> getTitle() {
-        return Optional.ofNullable(title);
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
     }
 
     public Optional<Integer> getMinQuantity() {

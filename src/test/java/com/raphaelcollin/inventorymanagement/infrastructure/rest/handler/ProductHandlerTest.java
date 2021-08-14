@@ -68,17 +68,17 @@ class ProductHandlerTest {
 
     private final Product product1 = ProductFactoryForTests.newProductDomain()
             .toBuilder()
-            .title("title1")
+            .name("name1")
             .quantity(5)
             .build();
     private final Product product2 = ProductFactoryForTests.newProductDomain()
             .toBuilder()
-            .title("title2")
+            .name("name2")
             .quantity(10)
             .build();
     private final Product product3 = ProductFactoryForTests.newProductDomain()
             .toBuilder()
-            .title("title3")
+            .name("name3")
             .quantity(15)
             .build();
 
@@ -126,19 +126,19 @@ class ProductHandlerTest {
                     .expectStatus().isOk()
                     .expectBody()
                     .jsonPath("$[0].id").value(is(product1.getId()))
-                    .jsonPath("$[0].title").value(is(product1.getTitle()))
+                    .jsonPath("$[0].name").value(is(product1.getName()))
                     .jsonPath("$[0].description").value(is(product1.getDescription()))
                     .jsonPath("$[0].price").value(is(product1.getPrice().intValue()))
                     .jsonPath("$[0].quantity").value(is(product1.getQuantity()))
                     .jsonPath("$[0].imageUrl").value(is(image1.getPreSignedUrl()))
                     .jsonPath("$[1].id").value(is(product2.getId()))
-                    .jsonPath("$[1].title").value(is(product2.getTitle()))
+                    .jsonPath("$[1].name").value(is(product2.getName()))
                     .jsonPath("$[1].description").value(is(product2.getDescription()))
                     .jsonPath("$[1].price").value(is(product2.getPrice().intValue()))
                     .jsonPath("$[1].quantity").value(is(product2.getQuantity()))
                     .jsonPath("$[1].imageUrl").value(is(image2.getPreSignedUrl()))
                     .jsonPath("$[2].id").value(is(product3.getId()))
-                    .jsonPath("$[2].title").value(is(product3.getTitle()))
+                    .jsonPath("$[2].name").value(is(product3.getName()))
                     .jsonPath("$[2].description").value(is(product3.getDescription()))
                     .jsonPath("$[2].price").value(is(product3.getPrice().intValue()))
                     .jsonPath("$[2].quantity").value(is(product3.getQuantity()))
@@ -146,10 +146,10 @@ class ProductHandlerTest {
         }
 
         @Test
-        @DisplayName("when called with title query param, then it should return only products matching it")
-        void whenCalledWithTitleQueryParam_shouldReturnOnlyProductsMatchingIt() {
+        @DisplayName("when called with name query param, then it should return only products matching it")
+        void whenCalledWithNameQueryParam_shouldReturnOnlyProductsMatchingIt() {
             final String uri = UriComponentsBuilder.fromUriString(ROOT_URI)
-                    .queryParam("title", product1.getTitle())
+                    .queryParam("name", product1.getName())
                     .toUriString();
 
             client.get()
@@ -159,7 +159,7 @@ class ProductHandlerTest {
                     .expectStatus().isOk()
                     .expectBody()
                     .jsonPath("$[0].id").value(is(product1.getId()))
-                    .jsonPath("$[0].title").value(is(product1.getTitle()))
+                    .jsonPath("$[0].name").value(is(product1.getName()))
                     .jsonPath("$[0].description").value(is(product1.getDescription()))
                     .jsonPath("$[0].price").value(is(product1.getPrice().intValue()))
                     .jsonPath("$[0].quantity").value(is(product1.getQuantity()))
@@ -180,13 +180,13 @@ class ProductHandlerTest {
                     .expectStatus().isOk()
                     .expectBody()
                     .jsonPath("$[0].id").value(is(product2.getId()))
-                    .jsonPath("$[0].title").value(is(product2.getTitle()))
+                    .jsonPath("$[0].name").value(is(product2.getName()))
                     .jsonPath("$[0].description").value(is(product2.getDescription()))
                     .jsonPath("$[0].price").value(is(product2.getPrice().intValue()))
                     .jsonPath("$[0].quantity").value(is(product2.getQuantity()))
                     .jsonPath("$[0].imageUrl").value(is(image2.getPreSignedUrl()))
                     .jsonPath("$[1].id").value(is(product3.getId()))
-                    .jsonPath("$[1].title").value(is(product3.getTitle()))
+                    .jsonPath("$[1].name").value(is(product3.getName()))
                     .jsonPath("$[1].description").value(is(product3.getDescription()))
                     .jsonPath("$[1].price").value(is(product3.getPrice().intValue()))
                     .jsonPath("$[1].quantity").value(is(product3.getQuantity()))
@@ -208,7 +208,7 @@ class ProductHandlerTest {
                     .expectStatus().isOk()
                     .expectBody()
                     .jsonPath("$.id").value(is(product1.getId()))
-                    .jsonPath("$.title").value(is(product1.getTitle()))
+                    .jsonPath("$.name").value(is(product1.getName()))
                     .jsonPath("$.description").value(is(product1.getDescription()))
                     .jsonPath("$.price").value(is(product1.getPrice().intValue()))
                     .jsonPath("$.quantity").value(is(product1.getQuantity()))
@@ -235,8 +235,8 @@ class ProductHandlerTest {
         private final Faker faker = Faker.instance();
 
         @Test
-        @DisplayName("when called without title, then it should return 400 error")
-        void whenCalledWithoutTitle_shouldReturn400Error() {
+        @DisplayName("when called without name, then it should return 400 error")
+        void whenCalledWithoutName_shouldReturn400Error() {
             final CreateProduct createProduct = new CreateProduct(
                     null,
                     faker.lorem().sentence(),
@@ -254,13 +254,13 @@ class ProductHandlerTest {
                     .expectStatus().isBadRequest()
                     .expectBody()
                     .jsonPath("$.message").value(is("The given payload is invalid. Check the 'details' field."))
-                    .jsonPath("$.details[0].field").value(is("title"))
+                    .jsonPath("$.details[0].field").value(is("name"))
                     .jsonPath("$.details[0].message").value(is("the field is mandatory"));
         }
 
         @Test
-        @DisplayName("when called with invalid title, then it should return 400 error")
-        void whenCalledWithInvalidTitle_shouldReturn400Error() {
+        @DisplayName("when called with invalid name, then it should return 400 error")
+        void whenCalledWithInvalidName_shouldReturn400Error() {
             final CreateProduct createProduct = new CreateProduct(
                     faker.lorem().fixedString(155),
                     faker.lorem().sentence(),
@@ -278,7 +278,7 @@ class ProductHandlerTest {
                     .expectStatus().isBadRequest()
                     .expectBody()
                     .jsonPath("$.message").value(is("The given payload is invalid. Check the 'details' field."))
-                    .jsonPath("$.details[0].field").value(is("title"))
+                    .jsonPath("$.details[0].field").value(is("name"))
                     .jsonPath("$.details[0].message").value(is("the field must not exceed 150 characters"));
         }
 
@@ -334,7 +334,7 @@ class ProductHandlerTest {
         @DisplayName("when called without price, then it should return 400 error")
         void whenCalledWithoutPrice_shouldReturn400Error() {
             final CreateProduct createProduct = new CreateProduct(
-                    faker.lorem().characters(),
+                    faker.commerce().productName(),
                     faker.lorem().sentence(),
                     null,
                     faker.random().nextInt(4, 20),
@@ -359,7 +359,7 @@ class ProductHandlerTest {
         @DisplayName("when called with invalid price, then it should return 400 error")
         void whenCalledWithInvalidPrice_shouldReturn400Error(double price) {
             final CreateProduct createProduct = new CreateProduct(
-                    faker.lorem().characters(),
+                    faker.commerce().productName(),
                     faker.lorem().sentence(),
                     BigDecimal.valueOf(price),
                     faker.random().nextInt(4, 20),
@@ -383,7 +383,7 @@ class ProductHandlerTest {
         @DisplayName("when called without quantity, then it should return 400 error")
         void whenCalledWithoutQuantity_shouldReturn400Error() {
             final CreateProduct createProduct = new CreateProduct(
-                    faker.lorem().characters(),
+                    faker.commerce().productName(),
                     faker.lorem().sentence(),
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
                     null,
@@ -407,7 +407,7 @@ class ProductHandlerTest {
         @DisplayName("when called with invalid quantity, then it should return 400 error")
         void whenCalledWithInvalidQuantity_shouldReturn400Error() {
             final CreateProduct createProduct = new CreateProduct(
-                    faker.lorem().characters(),
+                    faker.commerce().productName(),
                     faker.lorem().sentence(),
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
                     -1,
@@ -492,7 +492,7 @@ class ProductHandlerTest {
                     .expectStatus().isCreated()
                     .expectBody()
                     .jsonPath("$.id").isNotEmpty()
-                    .jsonPath("$.title").value(is(createProduct.getTitle()))
+                    .jsonPath("$.name").value(is(createProduct.getName()))
                     .jsonPath("$.description").value(is(createProduct.getDescription()))
                     .jsonPath("$.price").value(is(createProduct.getPrice().intValue()))
                     .jsonPath("$.quantity").value(is(createProduct.getQuantity()))
@@ -512,8 +512,8 @@ class ProductHandlerTest {
         final Faker faker = Faker.instance();
 
         @Test
-        @DisplayName("when called with invalid title, then it should return 400 error")
-        void whenCalledWithInvalidTitle_shouldReturn400Error() {
+        @DisplayName("when called with invalid name, then it should return 400 error")
+        void whenCalledWithInvalidName_shouldReturn400Error() {
             final UpdateProduct updateProduct = new UpdateProduct(
                     faker.lorem().fixedString(151),
                     null,
@@ -530,17 +530,17 @@ class ProductHandlerTest {
                     .expectStatus().isBadRequest()
                     .expectBody()
                     .jsonPath("$.message").value(is("The given payload is invalid. Check the 'details' field."))
-                    .jsonPath("$.details[0].field").value(is("title"))
+                    .jsonPath("$.details[0].field").value(is("name"))
                     .jsonPath("$.details[0].message").value(is("the field must not exceed 150 characters"));
         }
 
         @Test
-        @DisplayName("when called with valid title, then it should return 204 and update it")
-        void whenCalledWithValidTitle_shouldReturn204AndUpdateIt() {
-            final String newTitle = faker.lorem().sentence();
+        @DisplayName("when called with valid name, then it should return 204 and update it")
+        void whenCalledWithValidName_shouldReturn204AndUpdateIt() {
+            final String newName = faker.lorem().sentence();
 
             final UpdateProduct updateProduct = new UpdateProduct(
-                    newTitle,
+                    newName,
                     null,
                     null,
                     null,
@@ -555,7 +555,7 @@ class ProductHandlerTest {
                     .expectStatus().isNoContent()
                     .expectBody().isEmpty();
 
-            final Product expectedProduct = product1.toBuilder().title(newTitle).build();
+            final Product expectedProduct = product1.toBuilder().name(newName).build();
 
             StepVerifier.create(productRepository.findById(product1.getId()))
                     .expectSubscription()
@@ -793,20 +793,20 @@ class ProductHandlerTest {
                     .jsonPath("$.message").value(is("The given payload is invalid. Check the 'details' field."))
                     .jsonPath("$.details[0].field").value(is("description"))
                     .jsonPath("$.details[0].message").value(is("the field must not exceed 1000 characters"))
-                    .jsonPath("$.details[1].field").value(is("quantity"))
-                    .jsonPath("$.details[1].message").value(is("the field must contain a positive value"))
-                    .jsonPath("$.details[2].field").value(is("title"))
-                    .jsonPath("$.details[2].message").value(is("the field must not exceed 150 characters"));
+                    .jsonPath("$.details[1].field").value(is("name"))
+                    .jsonPath("$.details[1].message").value(is("the field must not exceed 150 characters"))
+                    .jsonPath("$.details[2].field").value(is("quantity"))
+                    .jsonPath("$.details[2].message").value(is("the field must contain a positive value"));
         }
 
         @Test
         @DisplayName("when called with multiple valid fields, then it should return 204 and update all of them")
         void whenCalledWithMultipleValidFields_shouldReturn204AndUpdateAllOfThem() {
-            final String newTitle = faker.lorem().sentence();
+            final String newName = faker.lorem().sentence();
             final int newQuantity = faker.random().nextInt(1, 100);
 
             final UpdateProduct updateProduct = new UpdateProduct(
-                    newTitle,
+                    newName,
                     null,
                     null,
                     newQuantity,
@@ -821,7 +821,7 @@ class ProductHandlerTest {
                     .expectStatus().isNoContent()
                     .expectBody().isEmpty();
 
-            final Product expectedProduct = product1.toBuilder().title(newTitle).quantity(newQuantity).build();
+            final Product expectedProduct = product1.toBuilder().name(newName).quantity(newQuantity).build();
 
             StepVerifier.create(productRepository.findById(product1.getId()))
                     .expectSubscription()

@@ -23,14 +23,14 @@ class UpdateProductTest {
         @Test
         @DisplayName("when all fields are filled, then it should return new product with the given fields")
         void whenAllFieldsAreFilled_shouldReturnNewProductWithTheGivenFields() {
-            final String title = FAKER.name().title();
+            final String name = FAKER.commerce().productName();
             final String description = FAKER.lorem().sentence();
             final BigDecimal price = BigDecimal.valueOf(FAKER.random().nextInt(1, 10));
             final int quantity = FAKER.random().nextInt(1, 100);
             final String imageIdentifier = FAKER.internet().uuid();
 
             final var updateProduct = new UpdateProduct(
-                    title,
+                    name,
                     description,
                     price,
                     quantity,
@@ -38,7 +38,7 @@ class UpdateProductTest {
             );
 
             final var expectedProduct = PRODUCT.toBuilder()
-                    .title(title)
+                    .name(name)
                     .description(description)
                     .price(price)
                     .quantity(quantity)
@@ -51,19 +51,19 @@ class UpdateProductTest {
         }
 
         @Test
-        @DisplayName("when only the title is filled, then it should only update it")
-        void whenOnlyTheTitleIsFilled_shouldOnlyUpdateIt() {
-            final String title = FAKER.name().title();
+        @DisplayName("when only the name is filled, then it should only update it")
+        void whenOnlyTheNameIsFilled_shouldOnlyUpdateIt() {
+            final String name = FAKER.commerce().productName();
 
             final var updateProduct = new UpdateProduct(
-                    title,
+                    name,
                     null,
                     null,
                     null,
                     null
             );
 
-            final var expectedProduct = PRODUCT.toBuilder().title(title).build();
+            final var expectedProduct = PRODUCT.toBuilder().name(name).build();
             final var actualProduct = updateProduct.toDomain(PRODUCT);
 
             assertThat(actualProduct).isEqualTo(expectedProduct);

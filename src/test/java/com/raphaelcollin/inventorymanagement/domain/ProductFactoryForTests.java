@@ -16,7 +16,7 @@ public class ProductFactoryForTests {
         return Product
                 .builder()
                 .id(FAKER.internet().uuid())
-                .title(FAKER.name().title())
+                .name(FAKER.commerce().productName())
                 .description(FAKER.lorem().sentence())
                 .price(BigDecimal.valueOf(FAKER.random().nextInt(12, 100)))
                 .quantity(FAKER.random().nextInt(1, 1000))
@@ -27,7 +27,7 @@ public class ProductFactoryForTests {
     public static ProductDocument newProductDocument() {
         return new ProductDocument(
                 FAKER.internet().uuid(),
-                FAKER.name().title(),
+                FAKER.commerce().productName(),
                 FAKER.lorem().sentence(),
                 BigDecimal.valueOf(FAKER.random().nextInt(12, 100)),
                 FAKER.random().nextInt(1, 1000),
@@ -38,14 +38,14 @@ public class ProductFactoryForTests {
     public static ProductQuery newProductQuery() {
         return ProductQuery
                 .builder()
-                .title(FAKER.name().title())
+                .name(FAKER.commerce().productName())
                 .minQuantity(FAKER.random().nextInt(5, 10))
                 .build();
     }
 
     public static CreateProduct newCreateProductDto() {
         return new CreateProduct(
-                FAKER.name().title(),
+                FAKER.commerce().productName(),
                 FAKER.lorem().sentence(),
                 BigDecimal.valueOf(FAKER.random().nextInt(12, 100)),
                 FAKER.random().nextInt(1, 1000),
@@ -55,7 +55,7 @@ public class ProductFactoryForTests {
 
     public static UpdateProduct newUpdateProductDto() {
         return new UpdateProduct(
-                FAKER.name().title(),
+                FAKER.commerce().productName(),
                 FAKER.lorem().sentence(),
                 BigDecimal.valueOf(FAKER.random().nextInt(12, 100)),
                 FAKER.random().nextInt(1, 1000),
@@ -64,6 +64,6 @@ public class ProductFactoryForTests {
     }
 
     public static SearchProducts newSearchProductsDto() {
-        return new SearchProducts(FAKER.name().title(), FAKER.random().nextInt(2, 10));
+        return new SearchProducts(FAKER.commerce().productName(), FAKER.random().nextInt(2, 10));
     }
 }

@@ -1,5 +1,7 @@
 package com.raphaelcollin.inventorymanagement.api.dto.in;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.raphaelcollin.inventorymanagement.domain.Product;
 import lombok.Value;
 
@@ -14,7 +16,7 @@ import java.math.BigDecimal;
 public class CreateProduct {
     @NotBlank(message = "the field is mandatory")
     @Size(max = 150, message = "the field must not exceed {max} characters")
-    String title;
+    String name;
 
     @NotBlank(message = "the field is mandatory")
     @Size(max = 1000, message = "the field must not exceed {max} characters")
@@ -32,11 +34,24 @@ public class CreateProduct {
     @Size(max = 36, message = "the field must not exceed {max} characters")
     String imageIdentifier;
 
+    @JsonCreator
+    public CreateProduct(@JsonProperty("name") final String name,
+                         @JsonProperty("description") final String description,
+                         @JsonProperty("price") final BigDecimal price,
+                         @JsonProperty("quantity") final Integer quantity,
+                         @JsonProperty("imageIdentifier") final String imageIdentifier) {
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.quantity = quantity;
+        this.imageIdentifier = imageIdentifier;
+    }
+
     public Product toDomain(final String productId) {
         return Product
                 .builder()
                 .id(productId)
-                .title(title)
+                .name(name)
                 .description(description)
                 .price(price)
                 .quantity(quantity)

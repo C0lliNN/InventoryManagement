@@ -12,7 +12,7 @@ public class Product {
     @NonNull
     String id;
     @NonNull
-    String title;
+    String name;
     @NonNull
     String description;
     @NonNull

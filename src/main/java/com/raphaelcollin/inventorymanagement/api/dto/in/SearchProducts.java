@@ -10,27 +10,27 @@ import java.util.Optional;
 
 @Value
 public class SearchProducts {
-    String title;
+    String name;
     Integer minQuantity;
 
     @JsonCreator
-    public SearchProducts(@JsonProperty("title") String title,
+    public SearchProducts(@JsonProperty("name") String name,
                           @JsonProperty("minQuantity") Integer minQuantity) {
-        this.title = title;
+        this.name = name;
         this.minQuantity = minQuantity;
     }
 
     public ProductQuery toDomain() {
         return ProductQuery
                 .builder()
-                .title(title)
+                .name(name)
                 .minQuantity(minQuantity)
                 .build();
     }
 
     public static SearchProducts fromQueryParams(MultiValueMap<String, String> queryParams) {
         return new SearchProducts(
-                queryParams.getFirst("title"),
+                queryParams.getFirst("name"),
                 Optional.ofNullable(queryParams.getFirst("minQuantity")).map(Integer::parseInt).orElse(null)
         );
     }
