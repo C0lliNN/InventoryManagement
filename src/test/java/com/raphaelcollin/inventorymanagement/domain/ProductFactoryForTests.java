@@ -16,6 +16,7 @@ public class ProductFactoryForTests {
         return Product
                 .builder()
                 .id(FAKER.internet().uuid())
+                .sku(FAKER.lorem().fixedString(8))
                 .name(FAKER.commerce().productName())
                 .description(FAKER.lorem().sentence())
                 .price(BigDecimal.valueOf(FAKER.random().nextInt(12, 100)))
@@ -27,6 +28,7 @@ public class ProductFactoryForTests {
     public static ProductDocument newProductDocument() {
         return new ProductDocument(
                 FAKER.internet().uuid(),
+                FAKER.lorem().fixedString(8),
                 FAKER.commerce().productName(),
                 FAKER.lorem().sentence(),
                 BigDecimal.valueOf(FAKER.random().nextInt(12, 100)),
@@ -46,6 +48,7 @@ public class ProductFactoryForTests {
     public static CreateProduct newCreateProductDto() {
         return new CreateProduct(
                 FAKER.commerce().productName(),
+                FAKER.lorem().fixedString(8),
                 FAKER.lorem().sentence(),
                 BigDecimal.valueOf(FAKER.random().nextInt(12, 100)),
                 FAKER.random().nextInt(1, 1000),
@@ -56,6 +59,7 @@ public class ProductFactoryForTests {
     public static UpdateProduct newUpdateProductDto() {
         return new UpdateProduct(
                 FAKER.commerce().productName(),
+                FAKER.lorem().fixedString(8),
                 FAKER.lorem().sentence(),
                 BigDecimal.valueOf(FAKER.random().nextInt(12, 100)),
                 FAKER.random().nextInt(1, 1000),

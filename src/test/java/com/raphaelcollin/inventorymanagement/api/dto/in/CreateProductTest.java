@@ -32,6 +32,7 @@ class CreateProductTest {
             return Product
                     .builder()
                     .id(PRODUCT_ID)
+                    .sku(createProductDto.getSku())
                     .name(createProductDto.getName())
                     .description(createProductDto.getDescription())
                     .price(createProductDto.getPrice())

@@ -24,6 +24,7 @@ class UpdateProductTest {
         @DisplayName("when all fields are filled, then it should return new product with the given fields")
         void whenAllFieldsAreFilled_shouldReturnNewProductWithTheGivenFields() {
             final String name = FAKER.commerce().productName();
+            final String sku = FAKER.lorem().fixedString(8);
             final String description = FAKER.lorem().sentence();
             final BigDecimal price = BigDecimal.valueOf(FAKER.random().nextInt(1, 10));
             final int quantity = FAKER.random().nextInt(1, 100);
@@ -31,6 +32,7 @@ class UpdateProductTest {
 
             final var updateProduct = new UpdateProduct(
                     name,
+                    sku,
                     description,
                     price,
                     quantity,
@@ -39,6 +41,7 @@ class UpdateProductTest {
 
             final var expectedProduct = PRODUCT.toBuilder()
                     .name(name)
+                    .sku(sku)
                     .description(description)
                     .price(price)
                     .quantity(quantity)
@@ -60,10 +63,31 @@ class UpdateProductTest {
                     null,
                     null,
                     null,
+                    null,
                     null
             );
 
             final var expectedProduct = PRODUCT.toBuilder().name(name).build();
+            final var actualProduct = updateProduct.toDomain(PRODUCT);
+
+            assertThat(actualProduct).isEqualTo(expectedProduct);
+        }
+
+        @Test
+        @DisplayName("when only the sku is filled, then it should only update it")
+        void whenOnlyTheSkuIsFilled_shouldOnlyUpdateIt() {
+            final String sku = FAKER.lorem().fixedString(8);
+
+            final var updateProduct = new UpdateProduct(
+                    null,
+                    sku,
+                    null,
+                    null,
+                    null,
+                    null
+            );
+
+            final var expectedProduct = PRODUCT.toBuilder().sku(sku).build();
             final var actualProduct = updateProduct.toDomain(PRODUCT);
 
             assertThat(actualProduct).isEqualTo(expectedProduct);
@@ -75,6 +99,7 @@ class UpdateProductTest {
             final String description = FAKER.lorem().sentence();
 
             final var updateProduct = new UpdateProduct(
+                    null,
                     null,
                     description,
                     null,
@@ -94,6 +119,7 @@ class UpdateProductTest {
             final BigDecimal price = BigDecimal.valueOf(FAKER.random().nextInt(1, 10));
 
             final var updateProduct = new UpdateProduct(
+                    null,
                     null,
                     null,
                     price,
@@ -116,6 +142,7 @@ class UpdateProductTest {
                     null,
                     null,
                     null,
+                    null,
                     quantity,
                     null
             );
@@ -132,6 +159,7 @@ class UpdateProductTest {
             final String imageIdentifier = FAKER.internet().uuid();
 
             final var updateProduct = new UpdateProduct(
+                    null,
                     null,
                     null,
                     null,

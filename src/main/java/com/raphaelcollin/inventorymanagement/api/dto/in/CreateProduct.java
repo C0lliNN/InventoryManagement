@@ -19,6 +19,10 @@ public class CreateProduct {
     String name;
 
     @NotBlank(message = "the field is mandatory")
+    @Size(max = 20, message = "the field must not exceed {max} characters")
+    String sku;
+
+    @NotBlank(message = "the field is mandatory")
     @Size(max = 1000, message = "the field must not exceed {max} characters")
     String description;
 
@@ -36,11 +40,13 @@ public class CreateProduct {
 
     @JsonCreator
     public CreateProduct(@JsonProperty("name") final String name,
+                         @JsonProperty("sku") final String sku,
                          @JsonProperty("description") final String description,
                          @JsonProperty("price") final BigDecimal price,
                          @JsonProperty("quantity") final Integer quantity,
                          @JsonProperty("imageIdentifier") final String imageIdentifier) {
         this.name = name;
+        this.sku = sku;
         this.description = description;
         this.price = price;
         this.quantity = quantity;
@@ -52,6 +58,7 @@ public class CreateProduct {
                 .builder()
                 .id(productId)
                 .name(name)
+                .sku(sku)
                 .description(description)
                 .price(price)
                 .quantity(quantity)

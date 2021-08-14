@@ -14,6 +14,8 @@ public class Product {
     @NonNull
     String name;
     @NonNull
+    String sku;
+    @NonNull
     String description;
     @NonNull
     BigDecimal price;

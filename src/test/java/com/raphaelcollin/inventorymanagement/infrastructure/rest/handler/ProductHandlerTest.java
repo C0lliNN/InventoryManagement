@@ -126,18 +126,21 @@ class ProductHandlerTest {
                     .expectStatus().isOk()
                     .expectBody()
                     .jsonPath("$[0].id").value(is(product1.getId()))
+                    .jsonPath("$[0].sku").value(is(product1.getSku()))
                     .jsonPath("$[0].name").value(is(product1.getName()))
                     .jsonPath("$[0].description").value(is(product1.getDescription()))
                     .jsonPath("$[0].price").value(is(product1.getPrice().intValue()))
                     .jsonPath("$[0].quantity").value(is(product1.getQuantity()))
                     .jsonPath("$[0].imageUrl").value(is(image1.getPreSignedUrl()))
                     .jsonPath("$[1].id").value(is(product2.getId()))
+                    .jsonPath("$[1].sku").value(is(product2.getSku()))
                     .jsonPath("$[1].name").value(is(product2.getName()))
                     .jsonPath("$[1].description").value(is(product2.getDescription()))
                     .jsonPath("$[1].price").value(is(product2.getPrice().intValue()))
                     .jsonPath("$[1].quantity").value(is(product2.getQuantity()))
                     .jsonPath("$[1].imageUrl").value(is(image2.getPreSignedUrl()))
                     .jsonPath("$[2].id").value(is(product3.getId()))
+                    .jsonPath("$[2].sku").value(is(product3.getSku()))
                     .jsonPath("$[2].name").value(is(product3.getName()))
                     .jsonPath("$[2].description").value(is(product3.getDescription()))
                     .jsonPath("$[2].price").value(is(product3.getPrice().intValue()))
@@ -159,6 +162,7 @@ class ProductHandlerTest {
                     .expectStatus().isOk()
                     .expectBody()
                     .jsonPath("$[0].id").value(is(product1.getId()))
+                    .jsonPath("$[0].sku").value(is(product1.getSku()))
                     .jsonPath("$[0].name").value(is(product1.getName()))
                     .jsonPath("$[0].description").value(is(product1.getDescription()))
                     .jsonPath("$[0].price").value(is(product1.getPrice().intValue()))
@@ -180,6 +184,7 @@ class ProductHandlerTest {
                     .expectStatus().isOk()
                     .expectBody()
                     .jsonPath("$[0].id").value(is(product2.getId()))
+                    .jsonPath("$[0].sku").value(is(product2.getSku()))
                     .jsonPath("$[0].name").value(is(product2.getName()))
                     .jsonPath("$[0].description").value(is(product2.getDescription()))
                     .jsonPath("$[0].price").value(is(product2.getPrice().intValue()))
@@ -208,6 +213,7 @@ class ProductHandlerTest {
                     .expectStatus().isOk()
                     .expectBody()
                     .jsonPath("$.id").value(is(product1.getId()))
+                    .jsonPath("$.sku").value(is(product1.getSku()))
                     .jsonPath("$.name").value(is(product1.getName()))
                     .jsonPath("$.description").value(is(product1.getDescription()))
                     .jsonPath("$.price").value(is(product1.getPrice().intValue()))
@@ -239,6 +245,7 @@ class ProductHandlerTest {
         void whenCalledWithoutName_shouldReturn400Error() {
             final CreateProduct createProduct = new CreateProduct(
                     null,
+                    faker.lorem().fixedString(8),
                     faker.lorem().sentence(),
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
                     faker.random().nextInt(4, 20),
@@ -263,6 +270,7 @@ class ProductHandlerTest {
         void whenCalledWithInvalidName_shouldReturn400Error() {
             final CreateProduct createProduct = new CreateProduct(
                     faker.lorem().fixedString(155),
+                    faker.lorem().fixedString(8),
                     faker.lorem().sentence(),
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
                     faker.random().nextInt(4, 20),
@@ -283,10 +291,61 @@ class ProductHandlerTest {
         }
 
         @Test
+        @DisplayName("when called without sku, then it should return 400 error")
+        void whenCalledWithoutSku_shouldReturn400Error() {
+            final CreateProduct createProduct = new CreateProduct(
+                    faker.commerce().productName(),
+                    null,
+                    faker.lorem().sentence(),
+                    BigDecimal.valueOf(faker.random().nextInt(1, 100)),
+                    faker.random().nextInt(4, 20),
+                    faker.internet().uuid()
+            );
+
+            client.post()
+                    .uri(ROOT_URI)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(createProduct)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .exchange()
+                    .expectStatus().isBadRequest()
+                    .expectBody()
+                    .jsonPath("$.message").value(is("The given payload is invalid. Check the 'details' field."))
+                    .jsonPath("$.details[0].field").value(is("sku"))
+                    .jsonPath("$.details[0].message").value(is("the field is mandatory"));
+        }
+
+        @Test
+        @DisplayName("when called with invalid sku, then it should return 400 error")
+        void whenCalledWithInvalidSku_shouldReturn400Error() {
+            final CreateProduct createProduct = new CreateProduct(
+                    faker.commerce().productName(),
+                    faker.lorem().fixedString(21),
+                    faker.lorem().sentence(),
+                    BigDecimal.valueOf(faker.random().nextInt(1, 100)),
+                    faker.random().nextInt(4, 20),
+                    faker.internet().uuid()
+            );
+
+            client.post()
+                    .uri(ROOT_URI)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(createProduct)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .exchange()
+                    .expectStatus().isBadRequest()
+                    .expectBody()
+                    .jsonPath("$.message").value(is("The given payload is invalid. Check the 'details' field."))
+                    .jsonPath("$.details[0].field").value(is("sku"))
+                    .jsonPath("$.details[0].message").value(is("the field must not exceed 20 characters"));
+        }
+
+        @Test
         @DisplayName("when called without description, then it should return 400 error")
         void whenCalledWithoutDescription_shouldReturn400Error() {
             final CreateProduct createProduct = new CreateProduct(
                     faker.lorem().characters(),
+                    faker.lorem().fixedString(8),
                     null,
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
                     faker.random().nextInt(4, 20),
@@ -311,6 +370,7 @@ class ProductHandlerTest {
         void whenCalledWithInvalidDescription_shouldReturn400Error() {
             final CreateProduct createProduct = new CreateProduct(
                     faker.lorem().characters(),
+                    faker.lorem().fixedString(8),
                     faker.lorem().fixedString(1005),
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
                     faker.random().nextInt(4, 20),
@@ -335,6 +395,7 @@ class ProductHandlerTest {
         void whenCalledWithoutPrice_shouldReturn400Error() {
             final CreateProduct createProduct = new CreateProduct(
                     faker.commerce().productName(),
+                    faker.lorem().fixedString(8),
                     faker.lorem().sentence(),
                     null,
                     faker.random().nextInt(4, 20),
@@ -360,6 +421,7 @@ class ProductHandlerTest {
         void whenCalledWithInvalidPrice_shouldReturn400Error(double price) {
             final CreateProduct createProduct = new CreateProduct(
                     faker.commerce().productName(),
+                    faker.lorem().fixedString(8),
                     faker.lorem().sentence(),
                     BigDecimal.valueOf(price),
                     faker.random().nextInt(4, 20),
@@ -384,6 +446,7 @@ class ProductHandlerTest {
         void whenCalledWithoutQuantity_shouldReturn400Error() {
             final CreateProduct createProduct = new CreateProduct(
                     faker.commerce().productName(),
+                    faker.lorem().fixedString(8),
                     faker.lorem().sentence(),
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
                     null,
@@ -408,6 +471,7 @@ class ProductHandlerTest {
         void whenCalledWithInvalidQuantity_shouldReturn400Error() {
             final CreateProduct createProduct = new CreateProduct(
                     faker.commerce().productName(),
+                    faker.lorem().fixedString(8),
                     faker.lorem().sentence(),
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
                     -1,
@@ -432,6 +496,7 @@ class ProductHandlerTest {
         void whenCalledWithoutImageIdentifier_shouldReturn400Error() {
             final CreateProduct createProduct = new CreateProduct(
                     faker.lorem().characters(),
+                    faker.lorem().fixedString(8),
                     faker.lorem().sentence(),
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
                     faker.random().nextInt(4, 20),
@@ -456,6 +521,7 @@ class ProductHandlerTest {
         void whenCalledWithInvalidImageIdentifier_shouldReturn400Error() {
             final CreateProduct createProduct = new CreateProduct(
                     faker.lorem().characters(),
+                    faker.lorem().fixedString(8),
                     faker.lorem().sentence(),
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
                     faker.random().nextInt(4, 20),
@@ -493,6 +559,7 @@ class ProductHandlerTest {
                     .expectBody()
                     .jsonPath("$.id").isNotEmpty()
                     .jsonPath("$.name").value(is(createProduct.getName()))
+                    .jsonPath("$.sku").value(is(createProduct.getSku()))
                     .jsonPath("$.description").value(is(createProduct.getDescription()))
                     .jsonPath("$.price").value(is(createProduct.getPrice().intValue()))
                     .jsonPath("$.quantity").value(is(createProduct.getQuantity()))
@@ -516,6 +583,7 @@ class ProductHandlerTest {
         void whenCalledWithInvalidName_shouldReturn400Error() {
             final UpdateProduct updateProduct = new UpdateProduct(
                     faker.lorem().fixedString(151),
+                    null,
                     null,
                     null,
                     null,
@@ -544,6 +612,7 @@ class ProductHandlerTest {
                     null,
                     null,
                     null,
+                    null,
                     null
             );
 
@@ -564,9 +633,64 @@ class ProductHandlerTest {
         }
 
         @Test
+        @DisplayName("when called with invalid sku, then it should return 400 error")
+        void whenCalledWithInvalidSku_shouldReturn400Error() {
+            final UpdateProduct updateProduct = new UpdateProduct(
+                    null,
+                    faker.lorem().fixedString(21),
+                    null,
+                    null,
+                    null,
+                    null
+            );
+
+            client.patch()
+                    .uri(ROOT_URI + "/" + product1.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(updateProduct)
+                    .exchange()
+                    .expectStatus().isBadRequest()
+                    .expectBody()
+                    .jsonPath("$.message").value(is("The given payload is invalid. Check the 'details' field."))
+                    .jsonPath("$.details[0].field").value(is("sku"))
+                    .jsonPath("$.details[0].message").value(is("the field must not exceed 20 characters"));
+        }
+
+        @Test
+        @DisplayName("when called with valid sku, then it should return 204 and update it")
+        void whenCalledWithValidSku_shouldReturn204AndUpdateIt() {
+            final String newSku = faker.lorem().fixedString(8);
+
+            final UpdateProduct updateProduct = new UpdateProduct(
+                    null,
+                    newSku,
+                    null,
+                    null,
+                    null,
+                    null
+            );
+
+            client.patch()
+                    .uri(ROOT_URI + "/" + product1.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(updateProduct)
+                    .exchange()
+                    .expectStatus().isNoContent()
+                    .expectBody().isEmpty();
+
+            final Product expectedProduct = product1.toBuilder().sku(newSku).build();
+
+            StepVerifier.create(productRepository.findById(product1.getId()))
+                    .expectSubscription()
+                    .expectNext(expectedProduct)
+                    .verifyComplete();
+        }
+
+        @Test
         @DisplayName("when called with invalid description, then it should return 400 error")
         void whenCalledWithInvalidDescription_shouldReturn400Error() {
             final UpdateProduct updateProduct = new UpdateProduct(
+                    null,
                     null,
                     faker.lorem().fixedString(1001),
                     null,
@@ -592,6 +716,7 @@ class ProductHandlerTest {
             final String newDescription = faker.lorem().sentence();
 
             final UpdateProduct updateProduct = new UpdateProduct(
+                    null,
                     null,
                     newDescription,
                     null,
@@ -622,6 +747,7 @@ class ProductHandlerTest {
             final UpdateProduct updateProduct = new UpdateProduct(
                     null,
                     null,
+                    null,
                     BigDecimal.valueOf(price),
                     null,
                     null
@@ -645,6 +771,7 @@ class ProductHandlerTest {
             final BigDecimal newPrice = BigDecimal.valueOf(faker.random().nextInt(1, 100));
 
             final UpdateProduct updateProduct = new UpdateProduct(
+                    null,
                     null,
                     null,
                     newPrice,
@@ -675,6 +802,7 @@ class ProductHandlerTest {
                     null,
                     null,
                     null,
+                    null,
                     -1,
                     null
             );
@@ -697,6 +825,7 @@ class ProductHandlerTest {
             final int newQuantity = faker.random().nextInt(1, 100);
 
             final UpdateProduct updateProduct = new UpdateProduct(
+                    null,
                     null,
                     null,
                     null,
@@ -728,6 +857,7 @@ class ProductHandlerTest {
                     null,
                     null,
                     null,
+                    null,
                     faker.internet().uuid().repeat(2)
             );
 
@@ -749,6 +879,7 @@ class ProductHandlerTest {
             final String newImageIdentifier = faker.internet().uuid();
 
             final UpdateProduct updateProduct = new UpdateProduct(
+                    null,
                     null,
                     null,
                     null,
@@ -777,6 +908,7 @@ class ProductHandlerTest {
         void whenCalledWithMultipleInvalidFields_shouldReturn400() {
             final UpdateProduct updateProduct = new UpdateProduct(
                     faker.lorem().fixedString(151),
+                    null,
                     faker.lorem().fixedString(1051),
                     null,
                     -1,
@@ -809,6 +941,7 @@ class ProductHandlerTest {
                     newName,
                     null,
                     null,
+                    null,
                     newQuantity,
                     null
             );
@@ -837,6 +970,7 @@ class ProductHandlerTest {
                     .findById(product1.getId());
 
             final UpdateProduct updateProduct = new UpdateProduct(
+                    null,
                     null,
                     null,
                     null,

@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 @Value
 public class Product {
     String id;
+    String sku;
     String name;
     String description;
     BigDecimal price;
@@ -17,6 +18,7 @@ public class Product {
     public static Product from(final com.raphaelcollin.inventorymanagement.domain.Product product, Image image) {
         return new Product(
                 product.getId(),
+                product.getSku(),
                 product.getName(),
                 product.getDescription(),
                 product.getPrice(),

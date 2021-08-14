@@ -26,6 +26,14 @@ class ProductTest {
             }
 
             @Test
+            @DisplayName("when called and 'sku' is null, then it should throw a NullPointerException")
+            void whenCalledAndSkuIsNull_shouldThrowANullPointerException() {
+                assertThatThrownBy(() -> Product.toBuilder().sku(null).build())
+                        .isInstanceOf(NullPointerException.class)
+                        .hasMessage("sku is marked non-null but is null");
+            }
+
+            @Test
             @DisplayName("when called and 'name' is null, then it should throw a NullPointerException")
             void whenCalledAndNameIsNull_shouldThrowANullPointerException() {
                 assertThatThrownBy(() -> Product.toBuilder().name(null).build())
