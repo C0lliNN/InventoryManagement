@@ -1,9 +1,9 @@
 package com.raphaelcollin.inventorymanagement.domain.exceptions;
 
-public class EntityNotFoundException extends InventoryManagementException {
+public class InventoryManagementException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
-    public EntityNotFoundException(final String message) {
+    public InventoryManagementException(final String message) {
         super(message);
     }
 }

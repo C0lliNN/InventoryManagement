@@ -5,7 +5,7 @@ import org.springframework.validation.FieldError;
 
 import java.util.List;
 
-public class RequestValidationException extends RuntimeException {
+public class RequestValidationException extends InventoryManagementException {
     private static final long serialVersionUID = 1L;
 
     @Getter
