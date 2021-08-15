@@ -15,6 +15,7 @@ import com.raphaelcollin.inventorymanagement.infrastructure.mongodb.repository.R
 import com.raphaelcollin.inventorymanagement.infrastructure.mongodb.serializer.ProductSerializer;
 import com.raphaelcollin.inventorymanagement.utils.initializers.DatabaseContainerInitializer;
 import com.raphaelcollin.inventorymanagement.utils.initializers.LocalstackContainerInitializer;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
