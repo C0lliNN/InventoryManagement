@@ -1,5 +1,6 @@
 package com.raphaelcollin.inventorymanagement.infrastructure.rest.router;
 
+import com.raphaelcollin.inventorymanagement.infrastructure.rest.documentation.StorageEndpointDocumentation;
 import com.raphaelcollin.inventorymanagement.infrastructure.rest.handler.StorageHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +15,7 @@ public class StorageRouter {
     private static final String ROOT_ENDPOINT = "/api/v1/storage";
 
     @Bean
+    @StorageEndpointDocumentation
     public RouterFunction<ServerResponse> storageRouterFunction(StorageHandler handler) {
         return RouterFunctions
                 .route(POST(ROOT_ENDPOINT), handler::generatePreSignedUrlForUpload);

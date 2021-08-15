@@ -1,5 +1,6 @@
 package com.raphaelcollin.inventorymanagement.infrastructure.rest.router;
 
+import com.raphaelcollin.inventorymanagement.infrastructure.rest.documentation.CategoryEndpointDocumentation;
 import com.raphaelcollin.inventorymanagement.infrastructure.rest.handler.CategoryHandler;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +23,7 @@ public class CategoryRouter {
     private static final String BASE_URL = "/api/v1/categories";
 
     @Bean
+    @CategoryEndpointDocumentation
     public RouterFunction<ServerResponse> categoryRouterFunction() {
         return RouterFunctions
                 .route(GET(BASE_URL), categoryHandler::findAllCategories)
