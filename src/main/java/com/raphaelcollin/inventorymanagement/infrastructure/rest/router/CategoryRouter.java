@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.web.reactive.function.server.RequestPredicate;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -25,10 +26,15 @@ public class CategoryRouter {
     @Bean
     @CategoryEndpointDocumentation
     public RouterFunction<ServerResponse> categoryRouterFunction() {
+        final RequestPredicate getCategoriesPredicate = GET(BASE_URL);
+        final RequestPredicate postCategoryPredicate = POST(BASE_URL).and(accept(MediaType.APPLICATION_JSON));
+        final RequestPredicate patchCategoryPredicate = PATCH(BASE_URL + "/{categoryId}").and(accept(MediaType.APPLICATION_JSON));
+        final RequestPredicate deleteCategoryPredicate = DELETE(BASE_URL + "/{categoryId}").and(accept(MediaType.APPLICATION_JSON));
+
         return RouterFunctions
-                .route(GET(BASE_URL), categoryHandler::findAllCategories)
-                .andRoute(POST(BASE_URL).and(accept(MediaType.APPLICATION_JSON)), categoryHandler::saveCategory)
-                .andRoute(PATCH(BASE_URL + "/{categoryId}").and(accept(MediaType.APPLICATION_JSON)), categoryHandler::updateCategoryById)
-                .andRoute(DELETE(BASE_URL + "/{categoryId}").and(accept(MediaType.APPLICATION_JSON)), categoryHandler::deleteCategoryById);
+                .route(getCategoriesPredicate, categoryHandler::findAllCategories)
+                .andRoute(postCategoryPredicate, categoryHandler::saveCategory)
+                .andRoute(patchCategoryPredicate, categoryHandler::updateCategoryById)
+                .andRoute(deleteCategoryPredicate, categoryHandler::deleteCategoryById);
     }
 }
