@@ -9,11 +9,13 @@ import com.raphaelcollin.inventorymanagement.domain.common.IdGenerator;
 import com.raphaelcollin.inventorymanagement.infrastructure.DatabaseTestAutoConfiguration;
 import com.raphaelcollin.inventorymanagement.infrastructure.mongodb.repository.ReactiveMongoCategoryRepository;
 import com.raphaelcollin.inventorymanagement.infrastructure.mongodb.serializer.ProductSerializer;
+import com.raphaelcollin.inventorymanagement.utils.extensions.DatabaseRollbackExtension;
 import com.raphaelcollin.inventorymanagement.utils.initializers.DatabaseContainerInitializer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,6 +42,7 @@ import static org.mockito.Mockito.when;
 })
 @AutoConfigureWebTestClient
 @ComponentScan("com.raphaelcollin.inventorymanagement")
+@ExtendWith(DatabaseRollbackExtension.class)
 class CategoryHandlerTest {
 
     @Autowired

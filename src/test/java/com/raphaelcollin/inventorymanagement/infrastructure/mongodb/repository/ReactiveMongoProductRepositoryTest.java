@@ -7,12 +7,14 @@ import com.raphaelcollin.inventorymanagement.domain.ProductRepository;
 import com.raphaelcollin.inventorymanagement.infrastructure.DatabaseTestAutoConfiguration;
 import com.raphaelcollin.inventorymanagement.infrastructure.mongodb.document.ProductDocument;
 import com.raphaelcollin.inventorymanagement.infrastructure.mongodb.serializer.ProductSerializer;
+import com.raphaelcollin.inventorymanagement.utils.extensions.DatabaseRollbackExtension;
 import com.raphaelcollin.inventorymanagement.utils.initializers.DatabaseContainerInitializer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,6 +39,7 @@ import java.util.UUID;
 @EnableAutoConfiguration
 @ComponentScan("com.raphaelcollin.inventorymanagement.infrastructure")
 @ContextConfiguration(initializers = DatabaseContainerInitializer.class)
+@ExtendWith(DatabaseRollbackExtension.class)
 class ReactiveMongoProductRepositoryTest {
 
     @Autowired

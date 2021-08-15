@@ -13,6 +13,7 @@ import com.raphaelcollin.inventorymanagement.infrastructure.clients.AmazonS3Imag
 import com.raphaelcollin.inventorymanagement.infrastructure.mongodb.document.ProductDocument;
 import com.raphaelcollin.inventorymanagement.infrastructure.mongodb.repository.ReactiveMongoProductRepository;
 import com.raphaelcollin.inventorymanagement.infrastructure.mongodb.serializer.ProductSerializer;
+import com.raphaelcollin.inventorymanagement.utils.extensions.DatabaseRollbackExtension;
 import com.raphaelcollin.inventorymanagement.utils.initializers.DatabaseContainerInitializer;
 import com.raphaelcollin.inventorymanagement.utils.initializers.LocalstackContainerInitializer;
 import org.hamcrest.Matchers;
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +56,7 @@ import static org.mockito.Mockito.doThrow;
 })
 @AutoConfigureWebTestClient
 @ComponentScan("com.raphaelcollin.inventorymanagement")
+@ExtendWith(DatabaseRollbackExtension.class)
 class ProductHandlerTest {
     @Autowired
     private WebTestClient client;
@@ -106,11 +109,6 @@ class ProductHandlerTest {
         image3 = imageStorageClient.generatePreSignedUrlForVisualization(product3.getImageIdentifier())
                 .blockOptional()
                 .orElseThrow();
-    }
-
-    @AfterEach
-    void tearDown() {
-        cleanCollection();
     }
 
     @Nested
@@ -1022,9 +1020,5 @@ class ProductHandlerTest {
                     .expectSubscription()
                     .verifyComplete();
         }
-    }
-
-    private void cleanCollection() {
-        template.dropCollection(ProductDocument.class).block();
     }
 }
