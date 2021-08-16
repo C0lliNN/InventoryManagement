@@ -49,6 +49,7 @@ import static org.mockito.Mockito.doThrow;
 })
 @SpringBootTest(classes = {
         ReactiveMongoProductRepository.class,
+        ReactiveMongoCategoryRepository.class,
         DatabaseTestAutoConfiguration.class,
         AmazonS3ImageStorageClient.class,
         ProductSerializer.class
@@ -130,6 +131,8 @@ class ProductHandlerTest {
                     .jsonPath("$[0].price").value(is(product1.getPrice().intValue()))
                     .jsonPath("$[0].quantity").value(is(product1.getQuantity()))
                     .jsonPath("$[0].imageUrl").value(is(image1.getPreSignedUrl()))
+                    .jsonPath("$[0].category.id").value(is(product1.getCategory().getId()))
+                    .jsonPath("$[0].category.name").value(is(product1.getCategory().getName()))
                     .jsonPath("$[1].id").value(is(product2.getId()))
                     .jsonPath("$[1].sku").value(is(product2.getSku()))
                     .jsonPath("$[1].name").value(is(product2.getName()))
@@ -137,13 +140,17 @@ class ProductHandlerTest {
                     .jsonPath("$[1].price").value(is(product2.getPrice().intValue()))
                     .jsonPath("$[1].quantity").value(is(product2.getQuantity()))
                     .jsonPath("$[1].imageUrl").value(is(image2.getPreSignedUrl()))
+                    .jsonPath("$[1].category.id").value(is(product2.getCategory().getId()))
+                    .jsonPath("$[1].category.name").value(is(product2.getCategory().getName()))
                     .jsonPath("$[2].id").value(is(product3.getId()))
                     .jsonPath("$[2].sku").value(is(product3.getSku()))
                     .jsonPath("$[2].name").value(is(product3.getName()))
                     .jsonPath("$[2].description").value(is(product3.getDescription()))
                     .jsonPath("$[2].price").value(is(product3.getPrice().intValue()))
                     .jsonPath("$[2].quantity").value(is(product3.getQuantity()))
-                    .jsonPath("$[2].imageUrl").value(is(image3.getPreSignedUrl()));
+                    .jsonPath("$[2].imageUrl").value(is(image3.getPreSignedUrl()))
+                    .jsonPath("$[2].category.id").value(is(product3.getCategory().getId()))
+                    .jsonPath("$[2].category.name").value(is(product3.getCategory().getName()));
         }
 
         @Test
@@ -165,7 +172,9 @@ class ProductHandlerTest {
                     .jsonPath("$[0].description").value(is(product1.getDescription()))
                     .jsonPath("$[0].price").value(is(product1.getPrice().intValue()))
                     .jsonPath("$[0].quantity").value(is(product1.getQuantity()))
-                    .jsonPath("$[0].imageUrl").value(is(image1.getPreSignedUrl()));
+                    .jsonPath("$[0].imageUrl").value(is(image1.getPreSignedUrl()))
+                    .jsonPath("$[0].category.id").value(is(product1.getCategory().getId()))
+                    .jsonPath("$[0].category.name").value(is(product1.getCategory().getName()));
         }
 
         @Test
@@ -188,12 +197,16 @@ class ProductHandlerTest {
                     .jsonPath("$[0].price").value(is(product2.getPrice().intValue()))
                     .jsonPath("$[0].quantity").value(is(product2.getQuantity()))
                     .jsonPath("$[0].imageUrl").value(is(image2.getPreSignedUrl()))
+                    .jsonPath("$[0].category.id").value(is(product2.getCategory().getId()))
+                    .jsonPath("$[0].category.name").value(is(product2.getCategory().getName()))
                     .jsonPath("$[1].id").value(is(product3.getId()))
                     .jsonPath("$[1].name").value(is(product3.getName()))
                     .jsonPath("$[1].description").value(is(product3.getDescription()))
                     .jsonPath("$[1].price").value(is(product3.getPrice().intValue()))
                     .jsonPath("$[1].quantity").value(is(product3.getQuantity()))
-                    .jsonPath("$[1].imageUrl").value(is(image3.getPreSignedUrl()));
+                    .jsonPath("$[1].imageUrl").value(is(image3.getPreSignedUrl()))
+                    .jsonPath("$[1].category.id").value(is(product3.getCategory().getId()))
+                    .jsonPath("$[1].category.name").value(is(product3.getCategory().getName()));
         }
     }
 
@@ -216,7 +229,9 @@ class ProductHandlerTest {
                     .jsonPath("$.description").value(is(product1.getDescription()))
                     .jsonPath("$.price").value(is(product1.getPrice().intValue()))
                     .jsonPath("$.quantity").value(is(product1.getQuantity()))
-                    .jsonPath("$.imageUrl").value(is(image1.getPreSignedUrl()));
+                    .jsonPath("$.imageUrl").value(is(image1.getPreSignedUrl()))
+                    .jsonPath("$.category.id").value(is(product1.getCategory().getId()))
+                    .jsonPath("$.category.name").value(is(product1.getCategory().getName()));
         }
 
         @Test
@@ -658,7 +673,9 @@ class ProductHandlerTest {
                     .jsonPath("$.description").value(is(createProduct.getDescription()))
                     .jsonPath("$.price").value(is(createProduct.getPrice().intValue()))
                     .jsonPath("$.quantity").value(is(createProduct.getQuantity()))
-                    .jsonPath("$.imageUrl").value(is(image.getPreSignedUrl()));
+                    .jsonPath("$.imageUrl").value(is(image.getPreSignedUrl()))
+                    .jsonPath("$.category.id").value(is(category.getId()))
+                    .jsonPath("$.category.name").value(is(category.getName()));
 
             StepVerifier.create(productRepository.findByQuery(ProductQuery.builder().build()))
                     .expectSubscription()

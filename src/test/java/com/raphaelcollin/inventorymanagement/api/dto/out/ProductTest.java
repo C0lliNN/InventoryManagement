@@ -36,7 +36,8 @@ class ProductTest {
                     product.getDescription(),
                     product.getPrice(),
                     product.getQuantity(),
-                    image.getPreSignedUrl()
+                    image.getPreSignedUrl(),
+                    Category.fromDomain(product.getCategory())
             );
         }
     }

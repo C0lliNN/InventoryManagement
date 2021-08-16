@@ -14,6 +14,7 @@ public class Product {
     BigDecimal price;
     int quantity;
     String imageUrl;
+    Category category;
 
     public static Product from(final com.raphaelcollin.inventorymanagement.domain.Product product, Image image) {
         return new Product(
@@ -23,7 +24,8 @@ public class Product {
                 product.getDescription(),
                 product.getPrice(),
                 product.getQuantity(),
-                image.getPreSignedUrl()
+                image.getPreSignedUrl(),
+                Category.fromDomain(product.getCategory())
         );
     }
 }

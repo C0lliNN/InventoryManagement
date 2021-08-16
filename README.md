@@ -1,6 +1,7 @@
 # Inventory Management
-
 A Non-Blocking REST API developed in Java 11, Spring Boot 2 and Spring WebFlux to manage the Inventory of an Industry.
+
+![](https://img.shields.io/badge/coverage-95%25-brightgreen)
 
 ##### [API Documentation]()
 ##### [Live Endpoint]()
