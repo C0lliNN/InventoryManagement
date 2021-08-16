@@ -48,11 +48,6 @@ class ReactiveMongoProductRepositoryTest {
     @Autowired
     private ReactiveMongoTemplate template;
 
-    @AfterEach
-    void tearDown() {
-        cleanCollection();
-    }
-
     @Nested
     @DisplayName("method: findByQuery()")
     class FindByQueryMethod {
@@ -119,6 +114,18 @@ class ReactiveMongoProductRepositoryTest {
                     .expectSubscription()
                     .expectNext(product2)
                     .expectNext(product3)
+                    .verifyComplete();
+        }
+
+        @Test
+        @DisplayName("when query contains 'categoryId', then it should return all the products matching it")
+        void whenQueryContainsCategoryId_shouldReturnAllTheProductsMatchingIt() {
+            final ProductQuery query = ProductQuery.builder().categoryId(product1.getCategory().getId()).build();
+            final Flux<Product> products = repository.findByQuery(query);
+
+            StepVerifier.create(products)
+                    .expectSubscription()
+                    .expectNext(product1)
                     .verifyComplete();
         }
 

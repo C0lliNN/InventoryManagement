@@ -28,6 +28,9 @@ public class ReactiveMongoProductRepository implements ProductRepository {
         productQuery.getName()
                 .ifPresent(name -> mongoQuery.addCriteria(new Criteria("name").is(name)));
 
+        productQuery.getCategoryId()
+                        .ifPresent(categoryId -> mongoQuery.addCriteria(new Criteria("category.id").is(categoryId)));
+
         productQuery.getMinQuantity()
                 .ifPresent(quantity -> mongoQuery.addCriteria(new Criteria("quantity").gte(quantity)));
 
