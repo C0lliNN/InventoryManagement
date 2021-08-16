@@ -6,18 +6,18 @@ import com.raphaelcollin.inventorymanagement.api.dto.in.UpdateProduct;
 import com.raphaelcollin.inventorymanagement.domain.Product;
 import com.raphaelcollin.inventorymanagement.domain.ProductFactoryForTests;
 import com.raphaelcollin.inventorymanagement.domain.ProductQuery;
+import com.raphaelcollin.inventorymanagement.domain.category.Category;
+import com.raphaelcollin.inventorymanagement.domain.category.CategoryFactoryForTests;
 import com.raphaelcollin.inventorymanagement.domain.storage.Image;
 import com.raphaelcollin.inventorymanagement.domain.storage.ImageStorageClient;
 import com.raphaelcollin.inventorymanagement.infrastructure.DatabaseTestAutoConfiguration;
 import com.raphaelcollin.inventorymanagement.infrastructure.clients.AmazonS3ImageStorageClient;
-import com.raphaelcollin.inventorymanagement.infrastructure.mongodb.document.ProductDocument;
+import com.raphaelcollin.inventorymanagement.infrastructure.mongodb.repository.ReactiveMongoCategoryRepository;
 import com.raphaelcollin.inventorymanagement.infrastructure.mongodb.repository.ReactiveMongoProductRepository;
 import com.raphaelcollin.inventorymanagement.infrastructure.mongodb.serializer.ProductSerializer;
 import com.raphaelcollin.inventorymanagement.utils.extensions.DatabaseRollbackExtension;
 import com.raphaelcollin.inventorymanagement.utils.initializers.DatabaseContainerInitializer;
 import com.raphaelcollin.inventorymanagement.utils.initializers.LocalstackContainerInitializer;
-import org.hamcrest.Matchers;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -30,7 +30,6 @@ import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWeb
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -65,7 +64,7 @@ class ProductHandlerTest {
     private ReactiveMongoProductRepository productRepository;
 
     @Autowired
-    private ReactiveMongoTemplate template;
+    private ReactiveMongoCategoryRepository categoryRepository;
 
     @Autowired
     private ImageStorageClient imageStorageClient;
@@ -248,6 +247,7 @@ class ProductHandlerTest {
                     faker.lorem().sentence(),
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
                     faker.random().nextInt(4, 20),
+                    faker.internet().uuid(),
                     faker.internet().uuid()
             );
 
@@ -273,6 +273,7 @@ class ProductHandlerTest {
                     faker.lorem().sentence(),
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
                     faker.random().nextInt(4, 20),
+                    faker.internet().uuid(),
                     faker.internet().uuid()
             );
 
@@ -298,6 +299,7 @@ class ProductHandlerTest {
                     faker.lorem().sentence(),
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
                     faker.random().nextInt(4, 20),
+                    faker.internet().uuid(),
                     faker.internet().uuid()
             );
 
@@ -323,6 +325,7 @@ class ProductHandlerTest {
                     faker.lorem().sentence(),
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
                     faker.random().nextInt(4, 20),
+                    faker.internet().uuid(),
                     faker.internet().uuid()
             );
 
@@ -348,6 +351,7 @@ class ProductHandlerTest {
                     null,
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
                     faker.random().nextInt(4, 20),
+                    faker.internet().uuid(),
                     faker.internet().uuid()
             );
 
@@ -373,6 +377,7 @@ class ProductHandlerTest {
                     faker.lorem().fixedString(1005),
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
                     faker.random().nextInt(4, 20),
+                    faker.internet().uuid(),
                     faker.internet().uuid()
             );
 
@@ -398,6 +403,7 @@ class ProductHandlerTest {
                     faker.lorem().sentence(),
                     null,
                     faker.random().nextInt(4, 20),
+                    faker.internet().uuid(),
                     faker.internet().uuid()
             );
 
@@ -424,6 +430,7 @@ class ProductHandlerTest {
                     faker.lorem().sentence(),
                     BigDecimal.valueOf(price),
                     faker.random().nextInt(4, 20),
+                    faker.internet().uuid(),
                     faker.internet().uuid()
             );
 
@@ -449,6 +456,7 @@ class ProductHandlerTest {
                     faker.lorem().sentence(),
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
                     null,
+                    faker.internet().uuid(),
                     faker.internet().uuid()
             );
 
@@ -474,6 +482,7 @@ class ProductHandlerTest {
                     faker.lorem().sentence(),
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
                     -1,
+                    faker.internet().uuid(),
                     faker.internet().uuid()
             );
 
@@ -499,7 +508,8 @@ class ProductHandlerTest {
                     faker.lorem().sentence(),
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
                     faker.random().nextInt(4, 20),
-                    null
+                    null,
+                    faker.internet().uuid()
             );
 
             client.post()
@@ -524,7 +534,8 @@ class ProductHandlerTest {
                     faker.lorem().sentence(),
                     BigDecimal.valueOf(faker.random().nextInt(1, 100)),
                     faker.random().nextInt(4, 20),
-                    faker.internet().uuid().repeat(2)
+                    faker.internet().uuid().repeat(2),
+                    faker.internet().uuid()
             );
 
             client.post()
@@ -541,9 +552,94 @@ class ProductHandlerTest {
         }
 
         @Test
+        @DisplayName("when called without categoryId, then it should return 400 error")
+        void whenCalledWithoutCategoryId_shouldReturn400Error() {
+            final CreateProduct createProduct = new CreateProduct(
+                    faker.lorem().characters(),
+                    faker.lorem().fixedString(8),
+                    faker.lorem().sentence(),
+                    BigDecimal.valueOf(faker.random().nextInt(1, 100)),
+                    faker.random().nextInt(4, 20),
+                    faker.internet().uuid(),
+                    null
+            );
+
+            client.post()
+                    .uri(ROOT_URI)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(createProduct)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .exchange()
+                    .expectStatus().isBadRequest()
+                    .expectBody()
+                    .jsonPath("$.message").value(is("The given payload is invalid. Check the 'details' field."))
+                    .jsonPath("$.details[0].field").value(is("categoryId"))
+                    .jsonPath("$.details[0].message").value(is("the field is mandatory"));
+        }
+
+        @Test
+        @DisplayName("when called with invalid categoryId, then it should return 400 error")
+        void whenCalledWithInvalidCategoryId_shouldReturn400Error() {
+            final CreateProduct createProduct = new CreateProduct(
+                    faker.lorem().characters(),
+                    faker.lorem().fixedString(8),
+                    faker.lorem().sentence(),
+                    BigDecimal.valueOf(faker.random().nextInt(1, 100)),
+                    faker.random().nextInt(4, 20),
+                    faker.internet().uuid(),
+                    faker.internet().uuid().repeat(2)
+            );
+
+            client.post()
+                    .uri(ROOT_URI)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(createProduct)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .exchange()
+                    .expectStatus().isBadRequest()
+                    .expectBody()
+                    .jsonPath("$.message").value(is("The given payload is invalid. Check the 'details' field."))
+                    .jsonPath("$.details[0].field").value(is("categoryId"))
+                    .jsonPath("$.details[0].message").value(is("the field must not exceed 36 characters"));
+        }
+
+        @Test
+        @DisplayName("when called with unknown categoryId, then it should return 400 error")
+        void whenCalledWithUnknownCategoryId_shouldReturn400Error() {
+            final CreateProduct createProduct = new CreateProduct(
+                    faker.commerce().productName(),
+                    faker.lorem().fixedString(8),
+                    faker.lorem().sentence(),
+                    BigDecimal.valueOf(faker.random().nextInt(1, 100)),
+                    faker.random().nextInt(4, 20),
+                    faker.internet().uuid(),
+                    faker.internet().uuid()
+            );
+
+            client.post()
+                    .uri(ROOT_URI)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(createProduct)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .exchange()
+                    .expectStatus().isNotFound()
+                    .expectBody()
+                    .jsonPath("$.message").value(is(format("Category with ID %s was not found", createProduct.getCategoryId())))
+                    .jsonPath("$.details").isEmpty();
+        }
+
+        @Test
         @DisplayName("when called with valid payload, then it should return 201 and persist the product")
         void whenCalledWithValidPayload_shouldReturn201AndPersistTheProduct() {
             final CreateProduct createProduct = ProductFactoryForTests.newCreateProductDto();
+
+            final Category category = CategoryFactoryForTests.newCategoryDomain()
+                    .toBuilder()
+                    .id(createProduct.getCategoryId())
+                    .build();
+
+            categoryRepository.save(category).block();
+
             final Image image = imageStorageClient.generatePreSignedUrlForVisualization(createProduct.getImageIdentifier())
                     .blockOptional()
                     .orElseThrow();

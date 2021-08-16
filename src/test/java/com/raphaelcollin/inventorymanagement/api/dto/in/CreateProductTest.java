@@ -2,6 +2,8 @@ package com.raphaelcollin.inventorymanagement.api.dto.in;
 
 import com.raphaelcollin.inventorymanagement.domain.Product;
 import com.raphaelcollin.inventorymanagement.domain.ProductFactoryForTests;
+import com.raphaelcollin.inventorymanagement.domain.category.Category;
+import com.raphaelcollin.inventorymanagement.domain.category.CategoryFactoryForTests;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -16,6 +18,7 @@ class CreateProductTest {
     @DisplayName("method: toDomain(String)")
     class ToDomainMethod {
         private final String PRODUCT_ID = UUID.randomUUID().toString();
+        private final Category CATEGORY = CategoryFactoryForTests.newCategoryDomain();
 
         @Test
         @DisplayName("when called, then it should convert from CreateProduct to Product")
@@ -23,7 +26,7 @@ class CreateProductTest {
             final CreateProduct createProductDto = ProductFactoryForTests.newCreateProductDto();
 
             final Product expectedProduct = createProductFromDto(createProductDto);
-            final Product actualProduct = createProductDto.toDomain(PRODUCT_ID);
+            final Product actualProduct = createProductDto.toDomain(PRODUCT_ID, CATEGORY);
 
             assertThat(actualProduct).isEqualTo(expectedProduct);
         }
@@ -38,6 +41,7 @@ class CreateProductTest {
                     .price(createProductDto.getPrice())
                     .quantity(createProductDto.getQuantity())
                     .imageIdentifier(createProductDto.getImageIdentifier())
+                    .category(CATEGORY)
                     .build();
         }
     }

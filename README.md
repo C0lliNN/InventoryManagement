@@ -9,6 +9,7 @@ A Non-Blocking REST API developed in Java 11, Spring Boot 2 and Spring WebFlux t
 
 * [Spring Boot](https://spring.io/projects/spring-boot)
 * [Spring WebFlux](https://docs.spring.io/spring-framework/docs/current/reference/html/web-reactive.html)
+* [Onion Architecture](https://jeffreypalermo.com/2008/07/the-onion-architecture-part-1/)
 * [MongoDB](https://www.mongodb.com/en-us)
 * [Testcontainers](https://www.testcontainers.org/) 
 * [Jacoco](https://github.com/jacoco/jacoco)

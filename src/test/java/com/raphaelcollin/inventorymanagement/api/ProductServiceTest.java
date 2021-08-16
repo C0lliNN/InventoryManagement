@@ -8,6 +8,9 @@ import com.raphaelcollin.inventorymanagement.domain.Product;
 import com.raphaelcollin.inventorymanagement.domain.ProductFactoryForTests;
 import com.raphaelcollin.inventorymanagement.domain.ProductQuery;
 import com.raphaelcollin.inventorymanagement.domain.ProductRepository;
+import com.raphaelcollin.inventorymanagement.domain.category.Category;
+import com.raphaelcollin.inventorymanagement.domain.category.CategoryFactoryForTests;
+import com.raphaelcollin.inventorymanagement.domain.category.CategoryRepository;
 import com.raphaelcollin.inventorymanagement.domain.common.IdGenerator;
 import com.raphaelcollin.inventorymanagement.domain.exceptions.EntityNotFoundException;
 import com.raphaelcollin.inventorymanagement.domain.exceptions.RequestValidationException;
@@ -44,6 +47,9 @@ class ProductServiceTest {
 
     @Mock
     private ProductRepository productRepository;
+
+    @Mock
+    private CategoryRepository categoryRepository;
 
     @Mock
     private ImageStorageClient imageStorageClient;
@@ -84,7 +90,7 @@ class ProductServiceTest {
             verify(imageStorageClient).generatePreSignedUrlForVisualization(product3.getImageIdentifier());
 
             verifyNoMoreInteractions(productRepository, imageStorageClient);
-            verifyNoInteractions(idGenerator, requestValidator);
+            verifyNoInteractions(idGenerator, requestValidator, categoryRepository);
         }
 
         @Test
@@ -110,7 +116,7 @@ class ProductServiceTest {
             verify(productRepository).findById(product.getId());
 
             verifyNoMoreInteractions(productRepository);
-            verifyNoInteractions(requestValidator, idGenerator);
+            verifyNoInteractions(requestValidator, idGenerator, categoryRepository);
         }
 
         @Test
@@ -148,7 +154,8 @@ class ProductServiceTest {
     @DisplayName("method: save(CreateProduct)")
     class SaveMethod {
         private final CreateProduct createProduct = ProductFactoryForTests.newCreateProductDto();
-        private final Product product = createProduct.toDomain(UUID.randomUUID().toString());
+        private final Category category = CategoryFactoryForTests.newCategoryDomain();
+        private final Product product = createProduct.toDomain(UUID.randomUUID().toString(), category);
         private final Image image = ImageFactoryForTests.newImageDomain();
 
         @AfterEach
@@ -160,6 +167,7 @@ class ProductServiceTest {
         @DisplayName("when the product is created successfully, then it should return the dto representation of it")
         void whenTheProductIsCreatedSuccessfully_shouldReturnTheDtoRepresentationOfIt() {
             when(requestValidator.validate(createProduct)).thenReturn(Mono.just(createProduct));
+            when(categoryRepository.findById(createProduct.getCategoryId())).thenReturn(Mono.just(category));
             when(productRepository.save(product)).thenReturn(Mono.empty());
             when(imageStorageClient.generatePreSignedUrlForVisualization(product.getImageIdentifier())).thenReturn(Mono.just(image));
             when(idGenerator.newId()).thenReturn(product.getId());
@@ -170,9 +178,10 @@ class ProductServiceTest {
                     .verifyComplete();
 
             verify(productRepository).save(product);
+            verify(categoryRepository).findById(createProduct.getCategoryId());
             verify(idGenerator).newId();
             verify(imageStorageClient).generatePreSignedUrlForVisualization(product.getImageIdentifier());
-            verifyNoMoreInteractions(requestValidator, idGenerator, productRepository);
+            verifyNoMoreInteractions(requestValidator, idGenerator, productRepository, categoryRepository);
         }
 
         @Test
@@ -188,7 +197,24 @@ class ProductServiceTest {
                     .verify();
 
             verifyNoMoreInteractions(requestValidator);
-            verifyNoInteractions(idGenerator, productRepository, imageStorageClient);
+            verifyNoInteractions(idGenerator, categoryRepository, productRepository, imageStorageClient);
+        }
+
+        @Test
+        @DisplayName("when category is not found, then it should return an error")
+        void whenCategoryIsNotFound_shouldReturnAnError() {
+            when(requestValidator.validate(createProduct)).thenReturn(Mono.just(createProduct));
+            when(categoryRepository.findById(createProduct.getCategoryId())).thenReturn(Mono.empty());
+
+            StepVerifier.create(productService.save(createProduct))
+                    .expectSubscription()
+                    .verifyErrorSatisfies(error -> assertThat(error)
+                            .isInstanceOf(EntityNotFoundException.class)
+                            .hasMessage("Category with ID %s was not found", createProduct.getCategoryId())
+                    );
+
+            verify(categoryRepository).findById(createProduct.getCategoryId());
+            verifyNoInteractions(productRepository, idGenerator, imageStorageClient);
         }
     }
 
@@ -266,7 +292,7 @@ class ProductServiceTest {
         @AfterEach
         void tearDown() {
             verify(productRepository).deleteById(productId);
-            verifyNoInteractions(idGenerator, requestValidator, imageStorageClient);
+            verifyNoInteractions(idGenerator, requestValidator, imageStorageClient, categoryRepository);
             verifyNoMoreInteractions(productRepository);
         }
 

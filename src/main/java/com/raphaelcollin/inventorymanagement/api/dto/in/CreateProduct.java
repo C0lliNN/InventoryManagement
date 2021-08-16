@@ -3,6 +3,7 @@ package com.raphaelcollin.inventorymanagement.api.dto.in;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.raphaelcollin.inventorymanagement.domain.Product;
+import com.raphaelcollin.inventorymanagement.domain.category.Category;
 import lombok.Value;
 
 import javax.validation.constraints.NotBlank;
@@ -38,22 +39,28 @@ public class CreateProduct {
     @Size(max = 36, message = "the field must not exceed {max} characters")
     String imageIdentifier;
 
+    @NotBlank(message = "the field is mandatory")
+    @Size(max = 36, message = "the field must not exceed {max} characters")
+    String categoryId;
+
     @JsonCreator
     public CreateProduct(@JsonProperty("name") final String name,
                          @JsonProperty("sku") final String sku,
                          @JsonProperty("description") final String description,
                          @JsonProperty("price") final BigDecimal price,
                          @JsonProperty("quantity") final Integer quantity,
-                         @JsonProperty("imageIdentifier") final String imageIdentifier) {
+                         @JsonProperty("imageIdentifier") final String imageIdentifier,
+                        @JsonProperty("categoryId") final String categoryId) {
         this.name = name;
         this.sku = sku;
         this.description = description;
         this.price = price;
         this.quantity = quantity;
         this.imageIdentifier = imageIdentifier;
+        this.categoryId = categoryId;
     }
 
-    public Product toDomain(final String productId) {
+    public Product toDomain(final String productId, final Category category) {
         return Product
                 .builder()
                 .id(productId)
@@ -63,6 +70,7 @@ public class CreateProduct {
                 .price(price)
                 .quantity(quantity)
                 .imageIdentifier(imageIdentifier)
+                .category(category)
                 .build();
     }
 }

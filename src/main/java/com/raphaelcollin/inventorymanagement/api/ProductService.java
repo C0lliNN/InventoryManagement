@@ -6,6 +6,7 @@ import com.raphaelcollin.inventorymanagement.api.dto.in.UpdateProduct;
 import com.raphaelcollin.inventorymanagement.api.dto.out.Product;
 import com.raphaelcollin.inventorymanagement.api.validation.RequestValidator;
 import com.raphaelcollin.inventorymanagement.domain.ProductRepository;
+import com.raphaelcollin.inventorymanagement.domain.category.CategoryRepository;
 import com.raphaelcollin.inventorymanagement.domain.common.IdGenerator;
 import com.raphaelcollin.inventorymanagement.domain.exceptions.EntityNotFoundException;
 import com.raphaelcollin.inventorymanagement.domain.storage.ImageStorageClient;
@@ -15,12 +16,11 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import static java.lang.String.format;
-
 @Service
 @AllArgsConstructor
 public class ProductService {
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
     private final ImageStorageClient imageStorageClient;
     private final IdGenerator idGenerator;
     private final RequestValidator validator;
@@ -34,14 +34,18 @@ public class ProductService {
     public Mono<Product> findById(final String productId) {
         return productRepository
                 .findById(productId)
-                .switchIfEmpty(Mono.error(new EntityNotFoundException(format("Product with ID %s was not found", productId))))
+                .switchIfEmpty(Mono.error(new EntityNotFoundException("Product with ID %s was not found", productId)))
                 .flatMap(this::generatePreSignedUrlAndMapToDto);
     }
 
     public Mono<Product> save(final CreateProduct createProduct) {
         return validator
                 .validate(createProduct)
-                .map(create -> create.toDomain(idGenerator.newId()))
+                .flatMap(create -> categoryRepository
+                        .findById(create.getCategoryId())
+                        .switchIfEmpty(Mono.error(new EntityNotFoundException("Category with ID %s was not found", create.getCategoryId())))
+                        .map(category -> create.toDomain(idGenerator.newId(), category))
+                )
                 .flatMap(product -> productRepository.save(product).thenReturn(product))
                 .flatMap(this::generatePreSignedUrlAndMapToDto);
     }
@@ -50,7 +54,7 @@ public class ProductService {
         return validator
                 .validate(updateProduct)
                 .flatMap(update -> productRepository.findById(productId))
-                .switchIfEmpty(Mono.error(new EntityNotFoundException(format("Product with ID %s was not found", productId))))
+                .switchIfEmpty(Mono.error(new EntityNotFoundException("Product with ID %s was not found", productId)))
                 .map(updateProduct::toDomain)
                 .flatMap(productRepository::save)
                 .then();
@@ -60,7 +64,7 @@ public class ProductService {
         return productRepository
                 .deleteById(productId)
                 .filter(BooleanUtils::isTrue)
-                .switchIfEmpty(Mono.error(new EntityNotFoundException(format("Product with ID %s was not found", productId)))).then();
+                .switchIfEmpty(Mono.error(new EntityNotFoundException("Product with ID %s was not found", productId))).then();
     }
 
     private Mono<Product> generatePreSignedUrlAndMapToDto(final com.raphaelcollin.inventorymanagement.domain.Product product) {
