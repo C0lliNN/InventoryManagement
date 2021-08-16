@@ -65,6 +65,13 @@ class ProductTest {
                         .hasMessage("imageIdentifier is marked non-null but is null");
             }
 
+            @Test
+            @DisplayName("when called and 'category' is null, then it should throw a NullPointerException")
+            void whenCalledAndCategoryIsNull_shouldThrowANullPointerException() {
+                assertThatThrownBy(() -> Product.toBuilder().category(null).build())
+                        .isInstanceOf(NullPointerException.class)
+                        .hasMessage("category is marked non-null but is null");
+            }
         }
     }
 }

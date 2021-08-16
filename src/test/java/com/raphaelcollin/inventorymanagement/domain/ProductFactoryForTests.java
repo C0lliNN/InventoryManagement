@@ -4,6 +4,7 @@ import com.github.javafaker.Faker;
 import com.raphaelcollin.inventorymanagement.api.dto.in.CreateProduct;
 import com.raphaelcollin.inventorymanagement.api.dto.in.SearchProducts;
 import com.raphaelcollin.inventorymanagement.api.dto.in.UpdateProduct;
+import com.raphaelcollin.inventorymanagement.domain.category.CategoryFactoryForTests;
 import com.raphaelcollin.inventorymanagement.infrastructure.mongodb.document.ProductDocument;
 
 import java.math.BigDecimal;
@@ -13,7 +14,7 @@ public class ProductFactoryForTests {
     private static final Faker FAKER = Faker.instance();
 
     public static Product newProductDomain() {
-        return Product
+                return Product
                 .builder()
                 .id(FAKER.internet().uuid())
                 .sku(FAKER.lorem().fixedString(8))
@@ -22,6 +23,7 @@ public class ProductFactoryForTests {
                 .price(BigDecimal.valueOf(FAKER.random().nextInt(12, 100)))
                 .quantity(FAKER.random().nextInt(1, 1000))
                 .imageIdentifier(FAKER.internet().uuid())
+                .category(CategoryFactoryForTests.newCategoryDomain())
                 .build();
     }
 
@@ -33,7 +35,8 @@ public class ProductFactoryForTests {
                 FAKER.lorem().sentence(),
                 BigDecimal.valueOf(FAKER.random().nextInt(12, 100)),
                 FAKER.random().nextInt(1, 1000),
-                FAKER.internet().uuid()
+                FAKER.internet().uuid(),
+                CategoryFactoryForTests.newCategoryDocument()
         );
     }
 

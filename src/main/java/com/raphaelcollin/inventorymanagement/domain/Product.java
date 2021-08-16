@@ -1,5 +1,6 @@
 package com.raphaelcollin.inventorymanagement.domain;
 
+import com.raphaelcollin.inventorymanagement.domain.category.Category;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
@@ -23,4 +24,6 @@ public class Product {
     Integer quantity;
     @NonNull
     String imageIdentifier;
+    @NonNull
+    Category category;
 }

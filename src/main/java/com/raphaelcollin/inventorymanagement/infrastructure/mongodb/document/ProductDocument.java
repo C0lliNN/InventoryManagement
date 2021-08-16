@@ -1,5 +1,6 @@
 package com.raphaelcollin.inventorymanagement.infrastructure.mongodb.document;
 
+import com.raphaelcollin.inventorymanagement.domain.category.Category;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,4 +23,5 @@ public class ProductDocument {
     private BigDecimal price;
     private Integer quantity;
     private String imageIdentifier;
+    private CategoryDocument category;
 }

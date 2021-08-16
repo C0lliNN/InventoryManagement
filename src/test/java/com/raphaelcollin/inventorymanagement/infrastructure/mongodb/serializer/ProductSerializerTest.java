@@ -10,7 +10,8 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ProductSerializerTest {
-    private static final ProductSerializer SERIALIZER = new ProductSerializer();
+    private static final CategorySerializer categorySerializer = new CategorySerializer();
+    private static final ProductSerializer productSerializer = new ProductSerializer(categorySerializer);
 
     @Nested
     @DisplayName("method: fromDocument(ProductDocument)")
@@ -22,7 +23,7 @@ class ProductSerializerTest {
             final ProductDocument document = ProductFactoryForTests.newProductDocument();
 
             final Product expectedProduct = createDomainFromDocument(document);
-            final Product actualProduct = SERIALIZER.fromDocument(document);
+            final Product actualProduct = productSerializer.fromDocument(document);
 
             assertThat(actualProduct).isEqualTo(expectedProduct);
         }
@@ -37,6 +38,7 @@ class ProductSerializerTest {
                     .price(document.getPrice())
                     .quantity(document.getQuantity())
                     .imageIdentifier(document.getImageIdentifier())
+                    .category(categorySerializer.fromDocument(document.getCategory()))
                     .build();
         }
     }
@@ -51,7 +53,7 @@ class ProductSerializerTest {
             final Product domain = ProductFactoryForTests.newProductDomain();
 
             final ProductDocument expectedDocument = createDocumentFromDomain(domain);
-            final ProductDocument actualDocument = SERIALIZER.toDocument(domain);
+            final ProductDocument actualDocument = productSerializer.toDocument(domain);
 
             assertThat(actualDocument).isEqualTo(expectedDocument);
         }
@@ -64,7 +66,8 @@ class ProductSerializerTest {
                     domain.getDescription(),
                     domain.getPrice(),
                     domain.getQuantity(),
-                    domain.getImageIdentifier()
+                    domain.getImageIdentifier(),
+                    categorySerializer.toDocument(domain.getCategory())
             );
         }
     }
