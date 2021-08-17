@@ -208,6 +208,30 @@ class ProductHandlerTest {
                     .jsonPath("$[1].category.id").value(is(product3.getCategory().getId()))
                     .jsonPath("$[1].category.name").value(is(product3.getCategory().getName()));
         }
+
+        @Test
+        @DisplayName("when called with categoryId query param, then it should return only products matching it")
+        void whenCalledWithCategoryIdQueryParam_shouldReturnOnlyProductsMatchingIt() {
+            final String uri = UriComponentsBuilder.fromUriString(ROOT_URI)
+                    .queryParam("categoryId", product2.getCategory().getId())
+                    .toUriString();
+
+            client.get()
+                    .uri(uri)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .exchange()
+                    .expectStatus().isOk()
+                    .expectBody()
+                    .jsonPath("$[0].id").value(is(product2.getId()))
+                    .jsonPath("$[0].sku").value(is(product2.getSku()))
+                    .jsonPath("$[0].name").value(is(product2.getName()))
+                    .jsonPath("$[0].description").value(is(product2.getDescription()))
+                    .jsonPath("$[0].price").value(is(product2.getPrice().intValue()))
+                    .jsonPath("$[0].quantity").value(is(product2.getQuantity()))
+                    .jsonPath("$[0].imageUrl").value(is(image2.getPreSignedUrl()))
+                    .jsonPath("$[0].category.id").value(is(product2.getCategory().getId()))
+                    .jsonPath("$[0].category.name").value(is(product2.getCategory().getName()));
+        }
     }
 
     @Nested

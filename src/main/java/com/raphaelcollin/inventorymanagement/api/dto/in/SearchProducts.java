@@ -12,12 +12,15 @@ import java.util.Optional;
 public class SearchProducts {
     String name;
     Integer minQuantity;
+    String categoryId;
 
     @JsonCreator
     public SearchProducts(@JsonProperty("name") String name,
-                          @JsonProperty("minQuantity") Integer minQuantity) {
+                          @JsonProperty("minQuantity") Integer minQuantity,
+                          @JsonProperty("categoryId") String categoryId) {
         this.name = name;
         this.minQuantity = minQuantity;
+        this.categoryId = categoryId;
     }
 
     public ProductQuery toDomain() {
@@ -25,13 +28,15 @@ public class SearchProducts {
                 .builder()
                 .name(name)
                 .minQuantity(minQuantity)
+                .categoryId(categoryId)
                 .build();
     }
 
     public static SearchProducts fromQueryParams(MultiValueMap<String, String> queryParams) {
         return new SearchProducts(
                 queryParams.getFirst("name"),
-                Optional.ofNullable(queryParams.getFirst("minQuantity")).map(Integer::parseInt).orElse(null)
+                Optional.ofNullable(queryParams.getFirst("minQuantity")).map(Integer::parseInt).orElse(null),
+                queryParams.getFirst("categoryId")
         );
     }
 }

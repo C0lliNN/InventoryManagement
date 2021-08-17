@@ -40,14 +40,6 @@ public class ProductFactoryForTests {
         );
     }
 
-    public static ProductQuery newProductQuery() {
-        return ProductQuery
-                .builder()
-                .name(FAKER.commerce().productName())
-                .minQuantity(FAKER.random().nextInt(5, 10))
-                .build();
-    }
-
     public static CreateProduct newCreateProductDto() {
         return new CreateProduct(
                 FAKER.commerce().productName(),
@@ -72,6 +64,10 @@ public class ProductFactoryForTests {
     }
 
     public static SearchProducts newSearchProductsDto() {
-        return new SearchProducts(FAKER.commerce().productName(), FAKER.random().nextInt(2, 10));
+        return new SearchProducts(
+                FAKER.commerce().productName(),
+                FAKER.random().nextInt(2, 10),
+                FAKER.internet().uuid()
+        );
     }
 }
