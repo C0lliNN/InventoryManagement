@@ -164,27 +164,6 @@ class ProductServiceTest {
         }
 
         @Test
-        @DisplayName("when the product is created successfully, then it should return the dto representation of it")
-        void whenTheProductIsCreatedSuccessfully_shouldReturnTheDtoRepresentationOfIt() {
-            when(requestValidator.validate(createProduct)).thenReturn(Mono.just(createProduct));
-            when(categoryRepository.findById(createProduct.getCategoryId())).thenReturn(Mono.just(category));
-            when(productRepository.save(product)).thenReturn(Mono.empty());
-            when(imageStorageClient.generatePreSignedUrlForVisualization(product.getImageIdentifier())).thenReturn(Mono.just(image));
-            when(idGenerator.newId()).thenReturn(product.getId());
-
-            StepVerifier.create(productService.save(createProduct))
-                    .expectSubscription()
-                    .expectNext(com.raphaelcollin.inventorymanagement.api.dto.out.Product.from(product, image))
-                    .verifyComplete();
-
-            verify(productRepository).save(product);
-            verify(categoryRepository).findById(createProduct.getCategoryId());
-            verify(idGenerator).newId();
-            verify(imageStorageClient).generatePreSignedUrlForVisualization(product.getImageIdentifier());
-            verifyNoMoreInteractions(requestValidator, idGenerator, productRepository, categoryRepository);
-        }
-
-        @Test
         @DisplayName("when validation fails, then it should return an error")
         void whenValidationFails_shouldReturnAnError() {
             when(requestValidator.validate(createProduct)).thenReturn(Mono.error(new RequestValidationException(emptyList())));
@@ -216,41 +195,44 @@ class ProductServiceTest {
             verify(categoryRepository).findById(createProduct.getCategoryId());
             verifyNoInteractions(productRepository, idGenerator, imageStorageClient);
         }
+
+        @Test
+        @DisplayName("when the product is created successfully, then it should return the dto representation of it")
+        void whenTheProductIsCreatedSuccessfully_shouldReturnTheDtoRepresentationOfIt() {
+            when(requestValidator.validate(createProduct)).thenReturn(Mono.just(createProduct));
+            when(categoryRepository.findById(createProduct.getCategoryId())).thenReturn(Mono.just(category));
+            when(productRepository.save(product)).thenReturn(Mono.empty());
+            when(imageStorageClient.generatePreSignedUrlForVisualization(product.getImageIdentifier())).thenReturn(Mono.just(image));
+            when(idGenerator.newId()).thenReturn(product.getId());
+
+            StepVerifier.create(productService.save(createProduct))
+                    .expectSubscription()
+                    .expectNext(com.raphaelcollin.inventorymanagement.api.dto.out.Product.from(product, image))
+                    .verifyComplete();
+
+            verify(productRepository).save(product);
+            verify(categoryRepository).findById(createProduct.getCategoryId());
+            verify(idGenerator).newId();
+            verify(imageStorageClient).generatePreSignedUrlForVisualization(product.getImageIdentifier());
+            verifyNoMoreInteractions(requestValidator, idGenerator, productRepository, categoryRepository);
+        }
     }
 
     @Nested
     @DisplayName("method: updateById(String, UpdateProduct)")
     class UpdateByIdMethod {
-        private final UpdateProduct updateProduct = ProductFactoryForTests.newUpdateProductDto();
         private final Product existingProduct = ProductFactoryForTests.newProductDomain();
-        private final Product newProduct = updateProduct.toDomain(existingProduct);
+        private final Category existingCategory = CategoryFactoryForTests.newCategoryDomain();
 
         @AfterEach
         void tearDown() {
-            verify(requestValidator).validate(updateProduct);
             verifyNoInteractions(idGenerator, imageStorageClient);
-            verifyNoMoreInteractions(requestValidator);
-        }
-
-        @Test
-        @DisplayName("when the update succeed, then it should return an empty Mono")
-        void whenTheUpdateSucceed_shouldReturnAnEmptyMono() {
-            when(requestValidator.validate(updateProduct)).thenReturn(Mono.just(updateProduct));
-            when(productRepository.findById(existingProduct.getId())).thenReturn(Mono.just(existingProduct));
-            when(productRepository.save(newProduct)).thenReturn(Mono.empty());
-
-            StepVerifier.create(productService.updateById(existingProduct.getId(), updateProduct))
-                    .expectSubscription()
-                    .verifyComplete();
-
-            verify(productRepository).findById(existingProduct.getId());
-            verify(productRepository).save(newProduct);
-            verifyNoMoreInteractions(productRepository);
         }
 
         @Test
         @DisplayName("when validator fails, then it should return an error")
         void whenValidatorFails_shouldReturnAnError() {
+            final UpdateProduct updateProduct = ProductFactoryForTests.newUpdateProductDto();
             when(requestValidator.validate(updateProduct)).thenReturn(Mono.error(new RequestValidationException(emptyList())));
 
             StepVerifier.create(productService.updateById(existingProduct.getId(), updateProduct))
@@ -267,6 +249,7 @@ class ProductServiceTest {
         @Test
         @DisplayName("when product is not found, then it should return an error")
         void whenProductIsNotFound_shouldReturnAnError() {
+            final UpdateProduct updateProduct = ProductFactoryForTests.newUpdateProductDto();
             when(requestValidator.validate(updateProduct)).thenReturn(Mono.just(updateProduct));
             when(productRepository.findById(existingProduct.getId())).thenReturn(Mono.empty());
 
@@ -277,10 +260,78 @@ class ProductServiceTest {
                             .hasMessage("Product with ID %s was not found", existingProduct.getId()))
                     .verify();
 
+
             verify(requestValidator).validate(updateProduct);
             verify(productRepository).findById(existingProduct.getId());
+            verifyNoMoreInteractions(productRepository, requestValidator);
+            verifyNoInteractions(categoryRepository);
+        }
 
-            verifyNoMoreInteractions(requestValidator, productRepository);
+        @Test
+        @DisplayName("when categoryId is present, and category is not found, then it should return an error")
+        void whenCategoryIdIsPresent_andCategoryIsNotFound_shouldReturnAnError() {
+            final UpdateProduct updateProduct = ProductFactoryForTests.newUpdateProductDto();
+            final String categoryId = updateProduct.getCategoryId().orElseThrow();
+
+            when(requestValidator.validate(updateProduct)).thenReturn(Mono.just(updateProduct));
+            when(productRepository.findById(existingProduct.getId())).thenReturn(Mono.just(existingProduct));
+            when(categoryRepository.findById(categoryId)).thenReturn(Mono.empty());
+
+            StepVerifier.create(productService.updateById(existingProduct.getId(), updateProduct))
+                    .expectSubscription()
+                    .verifyErrorSatisfies(error -> assertThat(error)
+                            .isInstanceOf(EntityNotFoundException.class)
+                            .hasMessage("Category with ID %s was not found", categoryId)
+                    );
+
+            verify(requestValidator).validate(updateProduct);
+            verify(productRepository).findById(existingProduct.getId());
+            verify(categoryRepository).findById(categoryId);
+
+            verifyNoMoreInteractions(productRepository, categoryRepository, requestValidator);
+        }
+
+        @Test
+        @DisplayName("when the categoryId is present, then it should fetch the category and update the product")
+        void whenTheCategoryIdIsPresent_shouldFetchTheCategoryAndUpdateTheProduct() {
+            final UpdateProduct updateProduct = ProductFactoryForTests.newUpdateProductDto();
+            final Product newProduct = updateProduct.toDomain(existingProduct).withCategory(existingCategory);
+
+            when(requestValidator.validate(updateProduct)).thenReturn(Mono.just(updateProduct));
+            when(productRepository.findById(existingProduct.getId())).thenReturn(Mono.just(existingProduct));
+            when(categoryRepository.findById(updateProduct.getCategoryId().orElseThrow())).thenReturn(Mono.just(existingCategory));
+            when(productRepository.save(newProduct)).thenReturn(Mono.empty());
+
+            StepVerifier.create(productService.updateById(existingProduct.getId(), updateProduct))
+                    .expectSubscription()
+                    .verifyComplete();
+
+            verify(requestValidator).validate(updateProduct);
+            verify(productRepository).findById(existingProduct.getId());
+            verify(productRepository).save(newProduct);
+            verify(categoryRepository).findById(updateProduct.getCategoryId().orElseThrow());
+            verifyNoMoreInteractions(requestValidator, productRepository, categoryRepository);
+        }
+
+        @Test
+        @DisplayName("when the categoryId is not present, then it should not fetch the category")
+        void whenTheCategoryIdIsNotPresent_shouldNotFetchTheCategory() {
+            final UpdateProduct updateProduct = ProductFactoryForTests.newUpdateProductDtoWithoutCategoryId();
+            final Product newProduct = updateProduct.toDomain(existingProduct);
+
+            when(requestValidator.validate(updateProduct)).thenReturn(Mono.just(updateProduct));
+            when(productRepository.findById(existingProduct.getId())).thenReturn(Mono.just(existingProduct));
+            when(productRepository.save(newProduct)).thenReturn(Mono.empty());
+
+            StepVerifier.create(productService.updateById(existingProduct.getId(), updateProduct))
+                    .expectSubscription()
+                    .verifyComplete();
+
+            verify(requestValidator).validate(updateProduct);
+            verify(productRepository).findById(existingProduct.getId());
+            verify(productRepository).save(newProduct);
+            verifyNoMoreInteractions(productRepository, requestValidator);
+            verifyNoInteractions(categoryRepository);
         }
     }
 

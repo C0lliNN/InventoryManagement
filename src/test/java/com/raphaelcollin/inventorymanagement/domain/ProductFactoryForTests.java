@@ -59,7 +59,20 @@ public class ProductFactoryForTests {
                 FAKER.lorem().sentence(),
                 BigDecimal.valueOf(FAKER.random().nextInt(12, 100)),
                 FAKER.random().nextInt(1, 1000),
+                FAKER.internet().uuid(),
                 FAKER.internet().uuid()
+        );
+    }
+
+    public static UpdateProduct newUpdateProductDtoWithoutCategoryId() {
+        return new UpdateProduct(
+                FAKER.commerce().productName(),
+                FAKER.lorem().fixedString(8),
+                FAKER.lorem().sentence(),
+                BigDecimal.valueOf(FAKER.random().nextInt(12, 100)),
+                FAKER.random().nextInt(1, 1000),
+                FAKER.internet().uuid(),
+                null
         );
     }
 

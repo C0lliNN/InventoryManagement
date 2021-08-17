@@ -4,6 +4,7 @@ import com.raphaelcollin.inventorymanagement.domain.category.Category;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
+import lombok.With;
 
 import java.math.BigDecimal;
 
@@ -24,6 +25,7 @@ public class Product {
     Integer quantity;
     @NonNull
     String imageIdentifier;
+    @With
     @NonNull
     Category category;
 }

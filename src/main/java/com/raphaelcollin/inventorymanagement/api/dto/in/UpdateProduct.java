@@ -1,6 +1,7 @@
 package com.raphaelcollin.inventorymanagement.api.dto.in;
 
 import com.raphaelcollin.inventorymanagement.domain.Product;
+import com.raphaelcollin.inventorymanagement.domain.category.Category;
 import lombok.Value;
 
 import javax.validation.constraints.Positive;
@@ -28,6 +29,9 @@ public class UpdateProduct {
 
     @Size(max = 36, message = "the field must not exceed {max} characters")
     String imageIdentifier;
+
+    @Size(max = 36, message = "the field must not exceed {max} characters")
+    String categoryId;
 
     public Product toDomain(final Product product) {
         final Product.ProductBuilder builder = product.toBuilder();
@@ -64,5 +68,9 @@ public class UpdateProduct {
 
     public Optional<String> getImageIdentifier() {
         return Optional.ofNullable(imageIdentifier);
+    }
+
+    public Optional<String> getCategoryId() {
+        return Optional.ofNullable(categoryId);
     }
 }

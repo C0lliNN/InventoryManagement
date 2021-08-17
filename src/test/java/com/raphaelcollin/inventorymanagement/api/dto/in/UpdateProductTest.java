@@ -29,6 +29,7 @@ class UpdateProductTest {
             final BigDecimal price = BigDecimal.valueOf(FAKER.random().nextInt(1, 10));
             final int quantity = FAKER.random().nextInt(1, 100);
             final String imageIdentifier = FAKER.internet().uuid();
+            final String categoryId = FAKER.internet().uuid();
 
             final var updateProduct = new UpdateProduct(
                     name,
@@ -36,7 +37,8 @@ class UpdateProductTest {
                     description,
                     price,
                     quantity,
-                    imageIdentifier
+                    imageIdentifier,
+                    categoryId
             );
 
             final var expectedProduct = PRODUCT.toBuilder()
@@ -64,6 +66,7 @@ class UpdateProductTest {
                     null,
                     null,
                     null,
+                    null,
                     null
             );
 
@@ -81,6 +84,7 @@ class UpdateProductTest {
             final var updateProduct = new UpdateProduct(
                     null,
                     sku,
+                    null,
                     null,
                     null,
                     null,
@@ -104,6 +108,7 @@ class UpdateProductTest {
                     description,
                     null,
                     null,
+                    null,
                     null
             );
 
@@ -123,6 +128,7 @@ class UpdateProductTest {
                     null,
                     null,
                     price,
+                    null,
                     null,
                     null
             );
@@ -144,6 +150,7 @@ class UpdateProductTest {
                     null,
                     null,
                     quantity,
+                    null,
                     null
             );
 
@@ -164,10 +171,30 @@ class UpdateProductTest {
                     null,
                     null,
                     null,
-                    imageIdentifier
+                    imageIdentifier,
+                    null
             );
 
             final var expectedProduct = PRODUCT.toBuilder().imageIdentifier(imageIdentifier).build();
+            final var actualProduct = updateProduct.toDomain(PRODUCT);
+
+            assertThat(actualProduct).isEqualTo(expectedProduct);
+        }
+
+        @Test
+        @DisplayName("when only the categoryId is filled, then it should not update nothing")
+        void whenOnlyTheCategoryIdIsFilled_shouldNotUpdateNothing() {
+            final var updateProduct = new UpdateProduct(
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    FAKER.internet().uuid()
+            );
+
+            final var expectedProduct = PRODUCT;
             final var actualProduct = updateProduct.toDomain(PRODUCT);
 
             assertThat(actualProduct).isEqualTo(expectedProduct);

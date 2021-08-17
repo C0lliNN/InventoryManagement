@@ -723,6 +723,7 @@ class ProductHandlerTest {
                     null,
                     null,
                     null,
+                    null,
                     null
             );
 
@@ -745,6 +746,7 @@ class ProductHandlerTest {
 
             final UpdateProduct updateProduct = new UpdateProduct(
                     newName,
+                    null,
                     null,
                     null,
                     null,
@@ -777,6 +779,7 @@ class ProductHandlerTest {
                     null,
                     null,
                     null,
+                    null,
                     null
             );
 
@@ -800,6 +803,7 @@ class ProductHandlerTest {
             final UpdateProduct updateProduct = new UpdateProduct(
                     null,
                     newSku,
+                    null,
                     null,
                     null,
                     null,
@@ -831,6 +835,7 @@ class ProductHandlerTest {
                     faker.lorem().fixedString(1001),
                     null,
                     null,
+                    null,
                     null
             );
 
@@ -855,6 +860,7 @@ class ProductHandlerTest {
                     null,
                     null,
                     newDescription,
+                    null,
                     null,
                     null,
                     null
@@ -886,6 +892,7 @@ class ProductHandlerTest {
                     null,
                     BigDecimal.valueOf(price),
                     null,
+                    null,
                     null
             );
 
@@ -911,6 +918,7 @@ class ProductHandlerTest {
                     null,
                     null,
                     newPrice,
+                    null,
                     null,
                     null
             );
@@ -940,6 +948,7 @@ class ProductHandlerTest {
                     null,
                     null,
                     -1,
+                    null,
                     null
             );
 
@@ -966,6 +975,7 @@ class ProductHandlerTest {
                     null,
                     null,
                     newQuantity,
+                    null,
                     null
             );
 
@@ -994,7 +1004,8 @@ class ProductHandlerTest {
                     null,
                     null,
                     null,
-                    faker.internet().uuid().repeat(2)
+                    faker.internet().uuid().repeat(2),
+                    null
             );
 
             client.patch()
@@ -1020,7 +1031,8 @@ class ProductHandlerTest {
                     null,
                     null,
                     null,
-                    newImageIdentifier
+                    newImageIdentifier,
+                    null
             );
 
             client.patch()
@@ -1040,6 +1052,88 @@ class ProductHandlerTest {
         }
 
         @Test
+        @DisplayName("when called with invalid categoryId, then it should return 400 error")
+        void whenCalledWithInvalidCategoryId_shouldReturn400Error() {
+            final UpdateProduct updateProduct = new UpdateProduct(
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    faker.internet().uuid().repeat(2)
+            );
+
+            client.patch()
+                    .uri(ROOT_URI + "/" + product1.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(updateProduct)
+                    .exchange()
+                    .expectStatus().isBadRequest()
+                    .expectBody()
+                    .jsonPath("$.message").value(is("The given payload is invalid. Check the 'details' field."))
+                    .jsonPath("$.details[0].field").value(is("categoryId"))
+                    .jsonPath("$.details[0].message").value(is("the field must not exceed 36 characters"));
+        }
+
+        @Test
+        @DisplayName("when called with unknown categoryId, then it should return 404 error")
+        void whenCalledWithUnknownCategoryId_shouldReturn404Error() {
+            final UpdateProduct updateProduct = new UpdateProduct(
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    faker.internet().uuid()
+            );
+
+            client.patch()
+                    .uri(ROOT_URI + "/" + product1.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(updateProduct)
+                    .exchange()
+                    .expectStatus().isNotFound()
+                    .expectBody()
+                    .jsonPath("$.message").value(is(format("Category with ID %s was not found", updateProduct.getCategoryId().orElse(null))))
+                    .jsonPath("$.details").isEmpty();
+        }
+
+        @Test
+        @DisplayName("when called with valid categoryId, then it should return 204 and update the category")
+        void whenCalledWithValidCategoryId_shouldReturn204AndUpdateTheCategory() {
+            final Category category = CategoryFactoryForTests.newCategoryDomain();
+            categoryRepository.save(category).block();
+
+            final UpdateProduct updateProduct = new UpdateProduct(
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    category.getId()
+            );
+
+            client.patch()
+                    .uri(ROOT_URI + "/" + product1.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(updateProduct)
+                    .exchange()
+                    .expectStatus().isNoContent()
+                    .expectBody().isEmpty();
+
+            final Product expectedProduct = product1.toBuilder().category(category).build();
+
+            StepVerifier.create(productRepository.findById(product1.getId()))
+                    .expectSubscription()
+                    .expectNext(expectedProduct)
+                    .verifyComplete();
+
+        }
+
+        @Test
         @DisplayName("when called with multiple invalid fields, then it should return 400")
         void whenCalledWithMultipleInvalidFields_shouldReturn400() {
             final UpdateProduct updateProduct = new UpdateProduct(
@@ -1048,6 +1142,7 @@ class ProductHandlerTest {
                     faker.lorem().fixedString(1051),
                     null,
                     -1,
+                    null,
                     null
             );
 
@@ -1079,6 +1174,7 @@ class ProductHandlerTest {
                     null,
                     null,
                     newQuantity,
+                    null,
                     null
             );
 
@@ -1111,6 +1207,7 @@ class ProductHandlerTest {
                     null,
                     null,
                     90,
+                    null,
                     null
             );
 
