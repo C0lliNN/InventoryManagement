@@ -3,8 +3,8 @@ A Non-Blocking REST API developed in Java 11, Spring Boot 2 and Spring WebFlux t
 
 ![](https://img.shields.io/badge/coverage-95%25-brightgreen)
 
-##### [API Documentation]()
-##### [Live Endpoint]()
+##### [API Documentation](https://c0llinn-inventory-management.herokuapp.com/docs)
+##### [Live Endpoint](https://c0llinn-inventory-management.herokuapp.com/api/v1/products)
 
 ## Tools & Libraries
 
@@ -18,6 +18,7 @@ A Non-Blocking REST API developed in Java 11, Spring Boot 2 and Spring WebFlux t
 * [Springdoc](https://springdoc.org/)
 * [Localstack](https://github.com/localstack/localstack)
 * [Amazon S3](https://aws.amazon.com/s3/?nc1=h_ls)
+* [Heroku](https://www.heroku.com/)
 
 ## How to run
 
