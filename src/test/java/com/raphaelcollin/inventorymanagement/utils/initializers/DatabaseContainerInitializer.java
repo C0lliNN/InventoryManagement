@@ -11,7 +11,7 @@ import java.util.Map;
 
 @ContextConfiguration
 public class DatabaseContainerInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-    private static final String MONGO_DB_IMAGE = "mongo";
+    private static final String MONGO_DB_IMAGE = "mongo:5.0";
 
     private static final MongoDBContainer MONGO_DB_CONTAINER = new MongoDBContainer(MONGO_DB_IMAGE);
 
