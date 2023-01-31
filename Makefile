@@ -1,5 +1,5 @@
 build-jar:
-	./mvnw package && java -jar target/inventory-management.jar
+	./mvnw package -DskipTests
 
 build-image:
 	docker build -t inventory-management .

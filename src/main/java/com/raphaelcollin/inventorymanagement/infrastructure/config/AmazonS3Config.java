@@ -15,16 +15,20 @@ public class AmazonS3Config {
     @Value("${aws.region}")
     private String awsRegion;
 
-    @Value("${aws.s3.endpoint}")
+    @Value("${aws.s3.endpoint:#{null}}")
     private String s3Endpoint;
 
     @Bean
     public S3Presigner s3Presigner() {
-        return S3Presigner
+        S3Presigner.Builder builder = S3Presigner
                 .builder()
                 .credentialsProvider(DefaultCredentialsProvider.create())
-                .region(Region.of(awsRegion))
-                .endpointOverride(URI.create(s3Endpoint))
-                .build();
+                .region(Region.of(awsRegion));
+
+        if (s3Endpoint != null) {
+            builder = builder.endpointOverride(URI.create(s3Endpoint));
+        }
+
+        return builder.build();
     }
 }
