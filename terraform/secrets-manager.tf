@@ -1,5 +1,5 @@
 resource "aws_secretsmanager_secret" "database_uri" {
-  name = "${var.app_name}-database-uri"
+  name = "${var.app_name}-mongodb-uri"
 }
 
 resource "aws_secretsmanager_secret_version" "database_uri_value" {

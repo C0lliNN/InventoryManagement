@@ -72,9 +72,8 @@ resource "aws_ecs_service" "inventory-management-service" {
   depends_on      = [mongodbatlas_advanced_cluster.database, aws_s3_bucket.file-storage]
 
   network_configuration {
-    assign_public_ip = true
     security_groups = [aws_security_group.alb-access.id]
-    subnets          = module.vpc.public_subnets
+    subnets          = module.vpc.private_subnets
   }
 
   // Ignoring these because CD tool will change those to kick off a new deployment

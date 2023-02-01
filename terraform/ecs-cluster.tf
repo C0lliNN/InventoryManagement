@@ -12,12 +12,4 @@ module "ecs-cluster" {
       }
     }
   }
-
-  fargate_capacity_providers = {
-    FARGATE = {
-      default_capacity_provider_strategy = {
-        weight = 100
-      }
-    }
-  }
 }

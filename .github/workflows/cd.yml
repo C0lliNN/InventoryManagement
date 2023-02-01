@@ -17,6 +17,15 @@ jobs:
       - name: Clone
         uses: actions/checkout@v2
 
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+
+      - name: Build JAR
+        run: mvn package -DskipTests
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         env:
@@ -26,15 +35,6 @@ jobs:
           aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: Setup Java
-        uses: actions/setup-java@v3
-        with:
-          java-version: '11'
-          distribution: 'temurin'
-
-      - name: Build JAR
-        run: mvn package -DskipTests
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -54,7 +54,7 @@ jobs:
           docker push $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG"
 
-      - name: Download task def
+      - name: Download Task Definition
         run: |
           aws ecs describe-task-definition --task-definition ${{ secrets.TASK_DEFINITION_FAMILY }} --query taskDefinition > task-definition.json
 
@@ -66,6 +66,9 @@ jobs:
           container-name: ${{ secrets.APP_NAME }}
           image: ${{ steps.build-image.outputs.image }}
 
+      - name: Update ECS Service Desired Count
+        run: aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER }} --service ${{ secrets.ECS_SERVICE }} --desired-count 2
+
       - name: Update ECS Service Task Definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
@@ -73,6 +76,3 @@ jobs:
           service: ${{ secrets.ECS_SERVICE }}
           cluster: ${{ secrets.ECS_CLUSTER }}
           wait-for-service-stability: true
-
-      - name: Update ECS Service Desired Count
-        run: aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER }} --service ${{ secrets.ECS_SERVICE }} --desired-count 2
