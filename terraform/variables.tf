@@ -47,3 +47,7 @@ variable "memory" {
   type = number
   default = 2048
 }
+
+variable "github_repository_name" {
+  type = string
+}

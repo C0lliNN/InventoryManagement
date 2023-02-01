@@ -1,7 +1,6 @@
 # Todo
 
 ## DELETE
-* Use Secrets Manager to inject sensitive information
 * Try to automate deployment with GitHub actions
 * Write deployment instructions
 
