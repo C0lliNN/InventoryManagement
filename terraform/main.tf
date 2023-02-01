@@ -4,6 +4,10 @@ terraform {
       source  = "mongodb/mongodbatlas"
       version = "= 1.8.0"
     }
+    github = {
+      source  = "integrations/github"
+      version = "~> 5.0"
+    }
   }
 }
 
@@ -16,4 +20,8 @@ provider "aws" {
 provider "mongodbatlas" {
   public_key = var.mongodbatlas_public_key
   private_key  = var.mongodbatlas_private_key
+}
+
+provider "github" {
+  token = var.github_personal_access_token
 }

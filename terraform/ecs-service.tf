@@ -28,16 +28,19 @@ resource "aws_ecs_task_definition" "task-definition" {
           value = "80"
         },
         {
-          name  = "SPRING_DATA_MONGODB_URI"
-          value = "mongodb+srv://${var.db_username}:${var.db_password}@${split("//", mongodbatlas_advanced_cluster.database.connection_strings.0.standard_srv)[1]}/${var.app_name}"
-        },
-        {
           name  = "AWS_S3_BUCKET"
           value = aws_s3_bucket.file-storage.bucket
         },
         {
           name  = "SPRINGDOC_SWAGGER_UI_PATH"
           value = "/docs"
+        }
+      ]
+
+      secrets = [
+        {
+          name = "SPRING_DATA_MONGODB_URI"
+          valueFrom = aws_secretsmanager_secret.database_uri.arn
         }
       ]
 

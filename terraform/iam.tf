@@ -17,7 +17,7 @@ resource "aws_iam_role" "task-definition-execution-role" {
 
 resource "aws_iam_policy" "execution-role-policy" {
   name        = "${var.app_name}-execution-role-policy"
-  description = "Allow full ECR and Cloudwatch Access"
+  description = "Allow ECR, Cloudwatch and Secrets Manager Access Access"
   policy      = jsonencode({
     "Version" : "2012-10-17",
     "Statement" : [
@@ -38,6 +38,15 @@ resource "aws_iam_policy" "execution-role-policy" {
         "Action": "logs:*",
         "Effect": "Allow",
         "Resource": "*"
+      },
+      {
+        "Action": [
+          "secretsmanager:GetSecretValue"
+        ],
+        "Effect": "Allow",
+        "Resource": [
+          aws_secretsmanager_secret.database_uri.arn
+        ]
       }
     ]
   })
