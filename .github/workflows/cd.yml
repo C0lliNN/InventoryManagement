@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: debug
-      - run: 'echo "$AWS_ACCESS_KEY_ID and $AWS_SECRET_ACCESS_KEY"'
+        run: 'echo "$AWS_ACCESS_KEY_ID and $AWS_SECRET_ACCESS_KEY"'
         shell: bash
         env:
           $AWS_ACCESS_KEY_ID: ${{secrets.$AWS_ACCESS_KEY_ID}}
