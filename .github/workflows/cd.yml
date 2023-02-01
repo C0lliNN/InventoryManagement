@@ -71,4 +71,4 @@ jobs:
           wait-for-service-stability: true
 
       - name: Update ECS Service Desired Count
-        run: aws ecs update-service --service ${{ secrets.ECS_SERVICE }} --desired-count 2
+        run: aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER }} --service ${{ secrets.ECS_SERVICE }} --desired-count 2
