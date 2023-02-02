@@ -73,7 +73,8 @@ resource "aws_ecs_service" "inventory_management_service" {
 
   network_configuration {
     security_groups = [aws_security_group.alb-access.id]
-    subnets          = module.vpc.private_subnets
+    subnets          = module.vpc.public_subnets
+    assign_public_ip = true
   }
 
   // Ignoring these because CD tool will change those to kick off a new deployment
