@@ -69,7 +69,7 @@ resource "aws_ecs_service" "inventory-management-service" {
   name            = var.app_name
   cluster         = module.ecs-cluster.cluster_id
   task_definition = aws_ecs_task_definition.task-definition.arn
-  depends_on      = [mongodbatlas_advanced_cluster.database, aws_s3_bucket.file-storage]
+  depends_on      = [aws_s3_bucket.file-storage]
 
   network_configuration {
     security_groups = [aws_security_group.alb-access.id]
