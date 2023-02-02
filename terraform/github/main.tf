@@ -29,7 +29,7 @@ resource "github_actions_secret" "aws_region" {
 resource "github_actions_secret" "ecr_repository" {
   repository      = var.github_repository_name
   secret_name     = "ECR_REPOSITORY"
-  plaintext_value = var.ecr_repository_url
+  plaintext_value = var.ecr_repository_name
 }
 
 resource "github_actions_secret" "app_name" {

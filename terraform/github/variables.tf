@@ -23,9 +23,9 @@ variable "aws_region" {
   description = "AWS REGION. It's required by Github Actions to perform the deployment"
 }
 
-variable "ecr_repository_url" {
+variable "ecr_repository_name" {
   type = string
-  description = "Elastic Container Registry URL. It's required by Github Actions to perform the deployment"
+  description = "Elastic Container Registry Repository name. It's required by Github Actions to perform the deployment"
 }
 
 variable "application_name" {

@@ -2,6 +2,10 @@ output "ecr_repository_url" {
   value = aws_ecr_repository.app_repository.repository_url
 }
 
+output "ecr_repository_name" {
+  value = aws_ecr_repository.app_repository.name
+}
+
 output "alb_app_dns" {
   value = aws_alb.alb.dns_name
 }

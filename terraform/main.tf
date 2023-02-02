@@ -60,7 +60,7 @@ module "github_repository_configuration" {
   aws_region                   = var.region
   aws_access_key_id            = var.aws_access_key_id
   aws_secret_access_key        = var.aws_secret_access_key
-  ecr_repository_url           = module.app.ecr_repository_url
+  ecr_repository_name           = module.app.ecr_repository_name
   ecs_cluster_name             = module.app.ecs_cluster_name
   ecs_service_name             = module.app.ecs_service_name
   github_personal_access_token = var.github_personal_access_token
