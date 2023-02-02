@@ -1,11 +1,11 @@
-resource "aws_ecs_task_definition" "task-definition" {
+resource "aws_ecs_task_definition" "task_definition" {
   family = var.app_name
 
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  task_role_arn            = aws_iam_role.task-definition-task-role.arn
+  task_role_arn            = aws_iam_role.task_definition_task_role.arn
 
-  execution_role_arn = aws_iam_role.task-definition-execution-role.arn
+  execution_role_arn = aws_iam_role.task_definition_execution_role.arn
 
   cpu    = var.cpu
   memory = var.memory
@@ -29,7 +29,7 @@ resource "aws_ecs_task_definition" "task-definition" {
         },
         {
           name  = "AWS_S3_BUCKET"
-          value = aws_s3_bucket.file-storage.bucket
+          value = aws_s3_bucket.app_storage_bucket.bucket
         },
         {
           name  = "SPRINGDOC_SWAGGER_UI_PATH"
@@ -40,7 +40,7 @@ resource "aws_ecs_task_definition" "task-definition" {
       secrets = [
         {
           name = "SPRING_DATA_MONGODB_URI"
-          valueFrom = aws_secretsmanager_secret.database_uri.arn
+          valueFrom = aws_secretsmanager_secret.mongodb_connection_string.arn
         }
       ]
 
@@ -65,11 +65,11 @@ resource "aws_ecs_task_definition" "task-definition" {
   ])
 }
 
-resource "aws_ecs_service" "inventory-management-service" {
+resource "aws_ecs_service" "inventory_management_service" {
   name            = var.app_name
-  cluster         = module.ecs-cluster.cluster_id
-  task_definition = aws_ecs_task_definition.task-definition.arn
-  depends_on      = [aws_s3_bucket.file-storage]
+  cluster         = module.ecs_cluster.cluster_id
+  task_definition = aws_ecs_task_definition.task_definition.arn
+  depends_on      = [aws_s3_bucket.app_storage_bucket]
 
   network_configuration {
     security_groups = [aws_security_group.alb-access.id]
@@ -82,8 +82,8 @@ resource "aws_ecs_service" "inventory-management-service" {
   }
 
   load_balancer {
-    target_group_arn = aws_alb_target_group.service-target-group.arn
-    container_name = aws_ecs_task_definition.task-definition.family
+    target_group_arn = aws_alb_target_group.target_group.arn
+    container_name = aws_ecs_task_definition.task_definition.family
     container_port = 80
   }
 }

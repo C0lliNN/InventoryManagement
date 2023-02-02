@@ -1,4 +1,4 @@
-resource "aws_alb" "app_alb" {
+resource "aws_alb" "alb" {
   name               = "${var.app_name}-elb"
   internal           = false
   load_balancer_type = "application"
@@ -6,7 +6,7 @@ resource "aws_alb" "app_alb" {
   security_groups    = [aws_security_group.web-access.id]
 }
 
-resource "aws_alb_target_group" "service-target-group" {
+resource "aws_alb_target_group" "target_group" {
   name     = "${var.app_name}-tg"
   port     = 80
   protocol = "HTTP"
@@ -15,12 +15,12 @@ resource "aws_alb_target_group" "service-target-group" {
 }
 
 resource "aws_alb_listener" "http_listener" {
-  load_balancer_arn = aws_alb.app_alb.id
+  load_balancer_arn = aws_alb.alb.id
   port              = "80"
   protocol          = "HTTP"
 
   default_action {
-    target_group_arn = aws_alb_target_group.service-target-group.id
+    target_group_arn = aws_alb_target_group.target_group.id
     type             = "forward"
   }
 }

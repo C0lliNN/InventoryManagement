@@ -1,4 +1,4 @@
-resource "aws_iam_role" "task-definition-execution-role" {
+resource "aws_iam_role" "task_definition_execution_role" {
   name               = "${var.app_name}-execution-role"
   assume_role_policy = jsonencode({
     "Version" : "2012-10-17",
@@ -15,7 +15,7 @@ resource "aws_iam_role" "task-definition-execution-role" {
   })
 }
 
-resource "aws_iam_policy" "execution-role-policy" {
+resource "aws_iam_policy" "execution_role_policy" {
   name        = "${var.app_name}-execution-role-policy"
   description = "Allow ECR, Cloudwatch and Secrets Manager Access Access"
   policy      = jsonencode({
@@ -45,21 +45,21 @@ resource "aws_iam_policy" "execution-role-policy" {
         ],
         "Effect": "Allow",
         "Resource": [
-          aws_secretsmanager_secret.database_uri.arn
+          aws_secretsmanager_secret.mongodb_connection_string.arn
         ]
       }
     ]
   })
 }
 
-resource "aws_iam_policy_attachment" "execution-role-policy-attachment" {
+resource "aws_iam_policy_attachment" "execution_role_policy_attachment" {
   name       = "${var.app_name}-execution-role-policy-attachment"
-  roles      = [aws_iam_role.task-definition-execution-role.name]
-  policy_arn = aws_iam_policy.execution-role-policy.arn
+  roles      = [aws_iam_role.task_definition_execution_role.name]
+  policy_arn = aws_iam_policy.execution_role_policy.arn
 }
 
 
-resource "aws_iam_role" "task-definition-task-role" {
+resource "aws_iam_role" "task_definition_task_role" {
   name               = "${var.app_name}-role"
   assume_role_policy = jsonencode({
     "Version" : "2012-10-17",
@@ -76,7 +76,7 @@ resource "aws_iam_role" "task-definition-task-role" {
   })
 }
 
-resource "aws_iam_policy" "task-role-policy" {
+resource "aws_iam_policy" "task_role_policy" {
   name        = "${var.app_name}-policy"
   description = "Allow full S3 Access"
   policy      = jsonencode({
@@ -92,8 +92,8 @@ resource "aws_iam_policy" "task-role-policy" {
   })
 }
 
-resource "aws_iam_policy_attachment" "task-role-policy-attachment" {
+resource "aws_iam_policy_attachment" "task_role_policy_attachment" {
   name       = "${var.app_name}-policy-attachment"
-  roles      = [aws_iam_role.task-definition-task-role.name]
-  policy_arn = aws_iam_policy.task-role-policy.arn
+  roles      = [aws_iam_role.task_definition_task_role.name]
+  policy_arn = aws_iam_policy.task_role_policy.arn
 }
