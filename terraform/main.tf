@@ -27,6 +27,10 @@ provider "github" {
   token = var.github_personal_access_token
 }
 
+locals {
+  mongodb_connection_string = "mongodb+srv://${var.db_username}:${var.db_password}@${split("//", module.mongodb_cluster.mongodb_cluster_uri)[1]}/${var.app_name}"
+}
+
 module "mongodb_cluster" {
   source = "./mongodb"
 
@@ -43,10 +47,8 @@ module "app" {
   source = "./app"
 
   app_name                           = var.app_name
-  mongodb_database_connection_string = "mongodb+srv://${var.db_username}:${var.db_password}@${split("//", module.mongodb_cluster.mongodb_cluster_uri)[1]}/${var.app_name}"
+  mongodb_connection_string = local.mongodb_connection_string
   region                             = var.region
-  aws_access_key_id                  = var.aws_access_key_id
-  aws_secret_access_key              = var.aws_secret_access_key
 
   depends_on = [module.mongodb_cluster]
 }
